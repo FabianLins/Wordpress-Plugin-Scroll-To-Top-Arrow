@@ -15,14 +15,14 @@ class LinsScrollToTopPlugin {
 
 		function add_css() {
 			$plugin_url = plugin_dir_url( __FILE__ );
-			wp_enqueue_style( 'style', $plugin_url . "style/style.min.css" );
+			wp_enqueue_style( 'style', $plugin_url . 'style/style.min.css' );
 		}
 
 		add_action( 'wp_enqueue_scripts', 'add_css' );
 
 		function render_html() {
 			echo
-				'<div class="scroll-arrow">
+				'<div class="scroll-arrow" onclick="linsScrollToTop()">
 					<svg fill="#000000" width="100%" height="100%" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 330 330" xml:space="preserve">
 					<path id="XMLID_225_" d="M325.607,79.393c-5.857-5.857-15.355-5.858-21.213,0.001l-139.39,139.393L25.607,79.393
 						c-5.857-5.857-15.355-5.858-21.213,0.001c-5.858,5.858-5.858,15.355,0,21.213l150.004,150c2.813,2.813,6.628,4.393,10.606,4.393
@@ -34,6 +34,20 @@ class LinsScrollToTopPlugin {
 		}
 
 		add_action( 'wp_footer', 'render_html' );
+
+
+		function add_js() {
+			$plugin_url = plugin_dir_url( __FILE__ );
+			wp_enqueue_script( 'foo',
+				$plugin_url . 'script/script.js',
+				array(),
+				'1.0.0',
+				array(
+					'strategy' => 'defer',
+				) );
+		}
+
+		add_action( 'wp_enqueue_scripts', 'add_js' );
 
 	}
 
