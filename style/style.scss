@@ -1,0 +1,85 @@
+$white: white;
+$black: hsl(270, 7%, 5%);
+$prim: #502eb8;
+$blue-light: hsl(180, 25%, 97%);
+
+// Breakpoints
+$lg: 992px;
+$md: 768px;
+$sm: 576px;
+
+.scroll-arrow {
+    width: 80px;
+    height: 80px;
+    background: rgba(darken($prim, 5), .5);
+    position: fixed;
+    right: 40px;
+    bottom: 40px;
+    z-index: 7;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    backdrop-filter: blur(2px);
+    transition: background .4s ease-in;
+
+    svg {
+        fill: $blue-light;
+        transform: rotate(180deg) translateY(0);
+        width: 65%;
+        margin: 0 auto;
+        left: 50%;
+        transition: transform 0.4s ease-in-out;
+    }
+
+    @media (pointer: fine) {
+
+        &:hover,
+        &:focus-within {
+            background: rgba($prim, 1);
+
+            svg {
+                transform: rotate(180deg) translateY(10px);
+            }
+
+            ~.scroll-bottom-fade {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    }
+
+    @media only screen and (max-width: $lg) {
+        transition-duration: .45s;
+
+        svg {
+            transition-duration: .45s;
+        }
+    }
+
+    @media only screen and (max-width: $md) {
+        right: 30px;
+        bottom: 30px;
+    }
+
+    @media only screen and (max-width: $sm) {
+        right: 20px;
+        bottom: 20px;
+    }
+}
+
+.scroll-bottom-fade {
+    width: 100%;
+    position: fixed;
+    height: 160px;
+    background: linear-gradient(180deg, transparent, rgba($black, .3));
+    bottom: 0;
+    z-index: 6;
+    opacity: 0;
+    transform: translateY(100%);
+    transition: transform .3s ease-in-out, opacity .4s ease-in-out;
+
+    @media only screen and (max-width: $lg) {
+        transition-duration: .45s;
+    }
+}
