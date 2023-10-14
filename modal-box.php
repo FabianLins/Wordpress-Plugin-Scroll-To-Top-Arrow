@@ -16,8 +16,8 @@ class LinsScrollToTopPlugin {
 
 	function settings() {
 		add_settings_section( 'scrollplugin_01', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'opacity', 'Opacity<br>(min. 0, max. 1)', array( $this, 'startZindexHTML' ), 'lins-scroll-to-top-settings', 'scrollplugin_01' );
-		register_setting( 'lins_scroll_to_top_plugin', 'opacity', array( 'sanitize_callback' => array( $this, 'sanitizeStartZindex' ), 'default' => 0.8 ) );
+		add_settings_field( 'opacity', 'Opacity<br>(min. 0, max. 1)', array( $this, 'opacityHTML' ), 'lins-scroll-to-top-settings', 'scrollplugin_01' );
+		register_setting( 'lins_scroll_to_top_plugin', 'opacity', array( 'sanitize_callback' => array( $this, 'sanitizeOpacity' ), 'default' => 0.8 ) );
 	}
 
 	function sanitizeMinMax( $fieldName, $input, $min, $max, ) {
@@ -27,7 +27,7 @@ class LinsScrollToTopPlugin {
 		return true;
 	}
 
-	function sanitizeStartZindex( $input ) {
+	function sanitizeOpacity( $input ) {
 		$fieldName = 'opacity';
 		$min       = 0;
 		$max       = 1;
@@ -40,7 +40,7 @@ class LinsScrollToTopPlugin {
 		}
 	}
 
-	function startZindexHTML() { ?>
+	function opacityHTML() { ?>
 		<input type="number" name="opacity" min="0" max="1" step="0.1"
 			value="<?php echo esc_attr( get_option( 'opacity' ) ) ?>">
 	<?php }
