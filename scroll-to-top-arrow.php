@@ -19,9 +19,9 @@ class LinsScrollToTopPlugin {
 		}
 
 		add_action( 'wp_enqueue_scripts', 'add_css' );
-
 		function render_html() {
-			echo
+			$opacity = get_option( 'scrollplugin_01' );
+			echo $opacity .
 				'<div class="scroll-arrow" onclick="linsScrollToTop()">
 					<svg fill="#000000" width="100%" height="100%" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 330 330" xml:space="preserve">
 					<path id="XMLID_225_" d="M325.607,79.393c-5.857-5.857-15.355-5.858-21.213,0.001l-139.39,139.393L25.607,79.393
@@ -35,40 +35,47 @@ class LinsScrollToTopPlugin {
 
 		add_action( 'wp_footer', 'render_html' );
 
-
 		function add_js() {
 			$plugin_url = plugin_dir_url( __FILE__ );
-			wp_enqueue_script( 'foo',
+			wp_enqueue_script( 'add_js',
 				$plugin_url . 'script/script.js',
 				array(),
 				'1.0.0',
 				array(
 					'strategy' => 'defer',
-				) );
+				)
+			);
 		}
 
 		add_action( 'wp_enqueue_scripts', 'add_js' );
-
+		wp_enqueue_style( 'my-stylesheet', false );
+		function rt_custom_enqueue() {
+			wp_enqueue_style( 'rt-customstyle', get_template_directory_uri() . '/css/custom.css', array(), '1.0.0', 'all' );
+			$opacity    = get_option( 'scroll_arrow_opacity' );
+			$custom_css = ".scroll-arrow{background-color: rgba(71,41,164,{$opacity}) ;}";
+			wp_add_inline_style( 'rt-customstyle', $custom_css );
+		}
+		add_action( 'wp_enqueue_scripts', 'rt_custom_enqueue' );
 	}
 
 	function settings() {
 		add_settings_section( 'scrollplugin_01', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'opacity', 'Opacity<br>(min. 0, max. 1)', array( $this, 'opacityHTML' ), 'lins-scroll-to-top-settings', 'scrollplugin_01' );
-		register_setting( 'lins_scroll_to_top_plugin', 'opacity', array( 'sanitize_callback' => array( $this, 'sanitizeOpacity' ), 'default' => 0.8 ) );
+		add_settings_field( 'scroll_arrow_opacity', 'Opacity<br>(min. 0, max. 1)', array( $this, 'opacityHTML' ), 'lins-scroll-to-top-settings', 'scrollplugin_01' );
+		register_setting( 'lins_scroll_to_top_plugin', 'scroll_arrow_opacity', array( 'sanitize_callback' => array( $this, 'sanitizeOpacity' ), 'default' => 0.8 ) );
 	}
 
 	function sanitizeMinMax( $fieldName, $input, $min, $max, ) {
 		if ( $input < $min or $input > $max ) {
 			add_settings_error( $fieldName, $fieldName . '_min_max_error', 'Input value of ' . $fieldName . ' is either below the minimum or above the maximum value' );
+			return false;
 		}
 		return true;
 	}
 
 	function sanitizeOpacity( $input ) {
-		$fieldName = 'opacity';
+		$fieldName = 'scroll_arrow_opacity';
 		$min       = 0;
 		$max       = 1;
-		$input     = absint( $input );
 		$sanitze   = LinsScrollToTopPlugin::sanitizeMinMax( $fieldName, $input, $min, $max );
 		if ( $sanitze === false ) {
 			return get_option( $fieldName );
@@ -78,8 +85,8 @@ class LinsScrollToTopPlugin {
 	}
 
 	function opacityHTML() { ?>
-		<input type="number" name="opacity" min="0" max="1" step="0.1"
-			value="<?php echo esc_attr( get_option( 'opacity' ) ) ?>">
+		<input type="number" name="scroll_arrow_opacity" min="0.0" max="1" step="0.1"
+			value="<?php echo esc_attr( get_option( 'scroll_arrow_opacity' ) ) ?>">
 	<?php }
 
 	function adminPage() {
