@@ -98,7 +98,7 @@ class LinsScrollToTopPlugin {
 		register_setting( 'lins_scroll_to_top_plugin', 'scroll_arrow_color_hover', array( 'sanitize_callback' => array( $this, 'sanitizeColorHover' ), 'default' => '#3E6EA2' ) );
 
 		add_settings_section( 'scrollplugin_05', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'scroll_arrow_size', 'Arrow Background Color Hover', array( $this, 'sizeHTML' ), 'lins-scroll-to-top-settings', 'scrollplugin_05' );
+		add_settings_field( 'scroll_arrow_size', 'Arrow Background Size', array( $this, 'sizeHTML' ), 'lins-scroll-to-top-settings', 'scrollplugin_05' );
 		register_setting( 'lins_scroll_to_top_plugin', 'scroll_arrow_size', array( 'sanitize_callback' => array( $this, 'sanitizeSize' ), 'default' => 80 ) );
 	}
 
