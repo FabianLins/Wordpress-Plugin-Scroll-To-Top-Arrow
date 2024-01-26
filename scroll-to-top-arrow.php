@@ -50,31 +50,30 @@ class LinsScrollToTopPlugin {
 		add_action( 'wp_enqueue_scripts', 'add_js' );
 
 		add_action( 'admin_enqueue_scripts', 'mw_enqueue_color_picker' );
+
 		function mw_enqueue_color_picker() {
 			wp_enqueue_style( 'wp-color-picker' );
 			wp_enqueue_script( 'my-script-handle', plugins_url( 'script/color-script.js', __FILE__ ), array( 'wp-color-picker' ), false, true );
 		}
+
 		wp_enqueue_style( 'my-stylesheet', false );
+		
 		function rt_custom_enqueue() {
 			wp_enqueue_style( 'rt-customstyle', get_template_directory_uri() . '/css/custom.css', array(), '1.0.0', 'all' );
+			$opacity             = get_option( 'scroll_arrow_opacity', 0.7 );
+			$arrow_color         = get_option( 'scroll_arrow_color', '#56585E' );
+			list( $r, $g, $b )   = sscanf( $arrow_color, "#%02x%02x%02x" );
+			$size                = get_option( 'scroll_arrow_size', 80 );
+			$custom_css          = ".scroll-arrow {
+										background-color: rgba( $r , $g , $b , $opacity );
+										width: { $size }px;
+										height: { $size }px;
+								    }";
 
-			$opacity           = get_option( 'scroll_arrow_opacity', 0.7 );
-			$arrow_color        = get_option( 'scroll_arrow_color', '#56585E' );
-			list( $r, $g, $b ) = sscanf( $arrow_color, "#%02x%02x%02x" );
-			$size              = get_option( 'scroll_arrow_size', 80 );
-			$custom_css        = ".scroll-arrow{
-										background-color: rgba($r,$g,$b,$opacity);
-										width: {$size}px;
-										height: {$size}px;
-								}";
-
-			$opacity_hover      = get_option( 'scroll_arrow_opacity_hover', 1 );
-			$arrow_colorHover   = get_option( 'scroll_arrow_color_hover', '#3E6EA2' );
-			list( $r, $g, $b ) = sscanf( $arrow_colorHover, "#%02x%02x%02x" );
-			$custom_css .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( $r , $g , $b , $opacity_hover ) ; }";
-
-			$custom_css .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( $r , $g , $b , $opacity_hover ) ; }";
-
+			$opacity_hover       = get_option( 'scroll_arrow_opacity_hover', 1 );
+			$arrow_color_hover   = get_option( 'scroll_arrow_color_hover', '#3E6EA2' );
+			list( $r, $g, $b )   = sscanf( $arrow_color_hover, "#%02x%02x%02x" );
+			$custom_css         .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( $r , $g , $b , $opacity_hover ) ; }";
 
 			wp_add_inline_style( 'rt-customstyle', $custom_css );
 		}
@@ -131,19 +130,21 @@ class LinsScrollToTopPlugin {
 		}
 	}
 
-	function opacity_html() { ?>
-		<input type="number" name="scroll_arrow_opacity" min="0.0" max="1" step="0.1"
-			value="<?php echo esc_attr( get_option( 'scroll_arrow_opacity' ) ) ?>">
-	<?php }
+	function opacity_html() { 
+		?>
+			<input type="number" name="scroll_arrow_opacity" min="0.0" max="1" step="0.1"
+				value="<?php echo esc_attr( get_option( 'scroll_arrow_opacity' ) ); ?>" />
+		<?php 
+	}
 
 	function sanitize_color( $input ) {
 		$field_name = 'scroll_arrow_color';
 		$sanitize  = false;
 		$input     = strtoupper( $input );
 		$rest      = substr( $input, 1, strlen( $input ) );
-		$hashKey   = substr( $input, 0, 1 );
+		$hash_key   = substr( $input, 0, 1 );
 
-		if ( $hashKey === '#' && strlen( $input ) === 7 && ctype_xdigit( $rest ) ) {
+		if ( $hash_key === '#' && strlen( $input ) === 7 && ctype_xdigit( $rest ) ) {
 			$sanitize = true;
 		}
 		if ( $sanitize === false ) {
@@ -156,8 +157,9 @@ class LinsScrollToTopPlugin {
 
 	function color_html() { 
 		?>
-			<input type="text" name="scroll_arrow_color" value="#56585E" data-default-color="#56585E" class="my-color-field" />
-		<?php }
+			<input type="text" name="scroll_arrow_color" value="<?php echo esc_attr( get_option( 'scroll_arrow_color' ) ); ?>" data-default-color="#56585E" class="my-color-field" />
+		<?php
+	}
 
 	function sanitize_opacity_hover( $input ) {
 		$field_name = 'scroll_arrow_opacity_hover';
@@ -171,19 +173,21 @@ class LinsScrollToTopPlugin {
 		}
 	}
 
-	function opacity_hover_html() { ?>
-		<input type="number" name="scroll_arrow_opacity_hover" min="0.0" max="1" step="0.1"
-			value="<?php echo esc_attr( get_option( 'scroll_arrow_opacity_hover' ) ) ?>">
-	<?php }
+	function opacity_hover_html() { 
+		?>
+			<input type="number" name="scroll_arrow_opacity_hover" min="0.0" max="1" step="0.1"
+				value="<?php echo esc_attr( get_option( 'scroll_arrow_opacity_hover' ) ) ?>">
+		<?php
+	}
 
 	function sanitize_color_hover( $input ) {
 		$field_name = 'scroll_arrow_color_hover';
 		$sanitize  = false;
 		$input     = strtoupper( $input );
 		$rest      = substr( $input, 1, strlen( $input ) );
-		$hashKey   = substr( $input, 0, 1 );
+		$hash_key   = substr( $input, 0, 1 );
 
-		if ( $hashKey === '#' && strlen( $input ) === 7 && ctype_xdigit( $rest ) ) {
+		if ( $hash_key === '#' && strlen( $input ) === 7 && ctype_xdigit( $rest ) ) {
 			$sanitize = true;
 		}
 		if ( $sanitize === false ) {
@@ -194,43 +198,50 @@ class LinsScrollToTopPlugin {
 		}
 	}
 
-	function color_hover_html() { ?>
-		<input type="text" name="scroll_arrow_color_hover" value="#3e6ea2" data-default-color="#3e6ea2"
-			class="my-color-field" />
-	<?php }
+	function color_hover_html() { 
+		?>
+			<input type="text" name="scroll_arrow_color_hover" value="<?php echo esc_attr( get_option( 'scroll_arrow_color_hover' ) ); ?>" data-default-color="#3e6ea2"
+				class="my-color-field" />
+		<?php 
+	}
 
 	function sanitize_size( $input ) {
 		$field_name = 'scroll_arrow_size';
-		$min       = 0;
-		$input     = absint( $input );
-		$sanitize  = LinsScrollToTopPlugin::sanitize_min( $field_name, $input, $min );
+		$min        = 0;
+		$input      = absint( $input );
+		$sanitize   = LinsScrollToTopPlugin::sanitize_min( $field_name, $input, $min );
 		if ( $sanitize === false ) {
 			return get_option( $field_name );
 		} else {
 			return $input;
 		}
 	}
-	function size_html() { ?>
-		<input type="number" name="scroll_arrow_size" min="0" step="10"
-			value="<?php echo esc_attr( get_option( 'scroll_arrow_size' ) ) ?>"> px
-	<?php }
+
+	function size_html() { 
+		?>
+			<input type="number" name="scroll_arrow_size" min="0" step="10"
+				value="<?php echo esc_attr( get_option( 'scroll_arrow_size' ) ) ?>"> px
+		<?php
+	}
 
 	function admin_page() {
 		add_options_page( 'Scroll Top Settings', 'Scroll Top Settings', 'manage_options', 'lins-scroll-to-top-settings', array( $this, 'return_html' ) );
 	}
 
-	function return_html() { ?>
-		<div class="wrap">
-			<h1>Scroll To Top Arrow Global Settings (by Fabian Lins)</h1>
-			<form action="options.php" method="POST">
-				<?php
-				settings_fields( 'lins_scroll_to_top_plugin' );
-				do_settings_sections( 'lins-scroll-to-top-settings' );
-				submit_button();
-				?>
-			</form>
-		</div>
-	<?php }
+	function return_html() { 
+		?>
+			<div class="wrap">
+				<h1>Scroll To Top Arrow Global Settings (by Fabian Lins)</h1>
+				<form action="options.php" method="POST">
+					<?php
+					settings_fields( 'lins_scroll_to_top_plugin' );
+					do_settings_sections( 'lins-scroll-to-top-settings' );
+					submit_button();
+					?>
+				</form>
+			</div>
+		<?php 
+	}
 }
 
 $lins_scroll_to_top_plugin = new LinsScrollToTopPlugin();
