@@ -10,7 +10,7 @@
 
 class LinsScrollToTopPlugin {
 	function __construct() {
-		add_action( 'admin_menu', array( $this, 'adminPage' ) );
+		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'admin_init', array( $this, 'settings' ) );
 
 		function add_css() {
@@ -215,7 +215,7 @@ class LinsScrollToTopPlugin {
 			value="<?php echo esc_attr( get_option( 'scroll_arrow_size' ) ) ?>"> px
 	<?php }
 
-	function adminPage() {
+	function admin_page() {
 		add_options_page( 'Scroll Top Settings', 'Scroll Top Settings', 'manage_options', 'lins-scroll-to-top-settings', array( $this, 'return_html' ) );
 	}
 
@@ -233,4 +233,4 @@ class LinsScrollToTopPlugin {
 	<?php }
 }
 
-$linsScrollToTopPlugin = new LinsScrollToTopPlugin();
+$lins_scroll_to_top_plugin = new LinsScrollToTopPlugin();
