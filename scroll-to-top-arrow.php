@@ -63,7 +63,7 @@ class Lins_Scroll_To_Top {
 			$opacity           = get_option( 'scroll_arrow_opacity', 0.7 );
 			$arrow_color       = get_option( 'scroll_arrow_color', '#56585E' );
 			list( $r, $g, $b ) = sscanf( $arrow_color, "#%02x%02x%02x" );
-			$size              = get_option( 'scroll_arrow_size', 80 );
+			$size              = get_option( 'scroll_bg_size', 80 );
 			$custom_css        = ".scroll-arrow {
 										background-color: rgba( {$r} , {$g} , {$b} , {$opacity} );
 										width: {$size}px;
@@ -99,8 +99,12 @@ class Lins_Scroll_To_Top {
 		register_setting( 'lins_scroll_to_top_plugin', 'scroll_arrow_color_hover', array( 'sanitize_callback' => array( $this, 'sanitize_color_hover' ), 'default' => '#3E6EA2' ) );
 
 		add_settings_section( 'scrollplugin_05', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'scroll_arrow_size', 'Arrow Background Size', array( $this, 'size_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_05' );
-		register_setting( 'lins_scroll_to_top_plugin', 'scroll_arrow_size', array( 'sanitize_callback' => array( $this, 'sanitize_size' ), 'default' => 80 ) );
+		add_settings_field( 'scroll_bg_size', 'Arrow Background Size', array( $this, 'bg_size_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_05' );
+		register_setting( 'lins_scroll_to_top_plugin', 'scroll_bg_size', array( 'sanitize_callback' => array( $this, 'sanitize_size' ), 'default' => 80 ) );
+
+		add_settings_section( 'scrollplugin_06', null, null, 'lins-scroll-to-top-settings' );
+		add_settings_field( 'scroll_arrow_size', 'Arrow Size', array( $this, 'arrow_size_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_06' );
+		register_setting( 'lins_scroll_to_top_plugin', 'scroll_arrow_size', array( 'sanitize_callback' => array( $this, 'sanitize_size' ), 'default' => 65 ) );
 	}
 
 	function sanitize_min_max( $field_name, $input, $min, $max ) {
@@ -209,7 +213,7 @@ class Lins_Scroll_To_Top {
 	}
 
 	function sanitize_size( $input ) {
-		$field_name = 'scroll_arrow_size';
+		$field_name = 'scroll_bg_size';
 		$min        = 0;
 		$input      = absint( $input );
 		$sanitize   = Lins_Scroll_To_Top::sanitize_min( $field_name, $input, $min );
@@ -220,10 +224,30 @@ class Lins_Scroll_To_Top {
 		}
 	}
 
-	function size_html() {
+	function sanitize_size_min_max( $input ) {
+		$field_name = 'scroll_arrow_size';
+		$min        = 0;
+		$max        = 100;
+		$input      = absint( $input );
+		$sanitize   = Lins_Scroll_To_Top::sanitize_min_max( $field_name, $input, $min, $max );
+		if ( $sanitize === false ) {
+			return get_option( $field_name );
+		} else {
+			return $input;
+		}
+	}
+
+	function bg_size_html() {
 		?>
-		<input type="number" name="scroll_arrow_size" min="0" step="1"
-			value="<?php echo esc_attr( get_option( 'scroll_arrow_size' ) ) ?>"> px
+		<input type="number" name="scroll_bg_size" min="0" step="1"
+			value="<?php echo esc_attr( get_option( 'scroll_bg_size' ) ) ?>"> px
+		<?php
+	}
+
+	function arrow_size_html() {
+		?>
+		<input type="number" name="scroll_arrow_size" min="0" max="100" step="1"
+			value="<?php echo esc_attr( get_option( 'scroll_arrow_size' ) ) ?>"> %
 		<?php
 	}
 
