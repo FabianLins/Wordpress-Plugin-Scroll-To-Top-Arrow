@@ -65,10 +65,13 @@ class Lins_Scroll_To_Top {
 			list( $r, $g, $b ) = sscanf( $arrow_color, "#%02x%02x%02x" );
 			$size              = get_option( 'scroll_bg_size', 80 );
 			$arrow_size        = get_option( 'scroll_arrow_size', 65 );
+			$margin_size       = get_option( 'scroll_margin_size', 40 );
 			$custom_css        = ".scroll-arrow {
 										background-color: rgba( {$r} , {$g} , {$b} , {$opacity} );
 										width: {$size}px;
 										height: {$size}px;
+										right: {$size}px;
+										bottom: {$size}px;
 								    }";
 			$opacity_hover     = get_option( 'scroll_arrow_opacity_hover', 1 );
 			$arrow_color_hover = get_option( 'scroll_arrow_color_hover', '#3E6EA2' );
@@ -104,7 +107,12 @@ class Lins_Scroll_To_Top {
 
 		add_settings_section( 'scrollplugin_06', null, null, 'lins-scroll-to-top-settings' );
 		add_settings_field( 'scroll_arrow_size', 'Arrow Size', array( $this, 'arrow_size_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_06' );
-		register_setting( 'lins_scroll_to_top_plugin', 'scroll_arrow_size', array( 'sanitize_callback' => array( $this, 'sanitize_size' ), 'default' => 65 ) );
+		register_setting( 'lins_scroll_to_top_plugin', 'scroll_arrow_size', array( 'sanitize_callback' => array( $this, 'sanitize_size_min_max' ), 'default' => 65 ) );
+
+		add_settings_section( 'scrollplugin_07', null, null, 'lins-scroll-to-top-settings' );
+		add_settings_field( 'scroll_arrow_margin', 'Arrow Size', array( $this, 'arrow_margin_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_07' );
+		register_setting( 'lins_scroll_to_top_plugin', 'scroll_arrow_margin', array( 'sanitize_callback' => array( $this, 'sanitize_margin' ), 'default' => 40 ) );
+
 	}
 
 	function sanitize_min_max( $field_name, $input, $min, $max ) {
@@ -224,6 +232,18 @@ class Lins_Scroll_To_Top {
 		}
 	}
 
+	function sanitize_margin( $input ) {
+		$field_name = 'scroll_margin_size';
+		$min        = 0;
+		$input      = absint( $input );
+		$sanitize   = Lins_Scroll_To_Top::sanitize_min( $field_name, $input, $min );
+		if ( $sanitize === false ) {
+			return get_option( $field_name );
+		} else {
+			return $input;
+		}
+	}
+
 	function sanitize_size_min_max( $input ) {
 		$field_name = 'scroll_arrow_size';
 		$min        = 0;
@@ -250,6 +270,14 @@ class Lins_Scroll_To_Top {
 			value="<?php echo esc_attr( get_option( 'scroll_arrow_size' ) ) ?>"> %
 		<?php
 	}
+
+	function arrow_margin_html() {
+		?>
+		<input type="number" name="scroll_margin_size" min="0" step="1"
+			value="<?php echo esc_attr( get_option( 'scroll_margin_size' ) ) ?>"> %
+		<?php
+	}
+
 
 	function admin_page() {
 		add_options_page( 'Scroll Top Settings', 'Scroll Top Settings', 'manage_options', 'lins-scroll-to-top-settings', array( $this, 'return_html' ) );
