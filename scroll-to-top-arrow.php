@@ -17,6 +17,7 @@ class Lins_Scroll_To_Top {
 		define( 'BG_SIZE_DEF', 80 );
 		define( 'ARROW_SIZE_DEF', 65 );
 		define( 'ARROW_MARGIN_DEF', 40 );
+		define( 'ARROW_TRANSLATE_DEF', 10 );
 
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'admin_init', array( $this, 'settings' ) );
@@ -74,6 +75,7 @@ class Lins_Scroll_To_Top {
 			$size              = get_option( 'lins_scroll_bg_size', BG_SIZE_DEF );
 			$arrow_size        = get_option( 'lins_scroll_arrow_size', ARROW_SIZE_DEF );
 			$margin_size       = get_option( 'lins_scroll_arrow_margin', ARROW_MARGIN_DEF );
+			$translate_size    = get_option( 'lins_scroll_arrow_translate', ARROW_TRANSLATE_DEF );
 			$custom_css        = ".scroll-arrow {
 										background-color: rgba( {$r} , {$g} , {$b} , {$opacity} );
 										width: {$size}px;
@@ -86,7 +88,7 @@ class Lins_Scroll_To_Top {
 			list( $r, $g, $b ) = sscanf( $arrow_color_hover, "#%02x%02x%02x" );
 			$custom_css .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( {$r} , {$g} , {$b} , {$opacity_hover} ) ; }";
 			$custom_css .= ".scroll-arrow svg {width: {$arrow_size}%;}";
-
+			$custom_css .= ".scroll-arrow:hover svg, .scroll-arrow:focus-within svg { transform: rotate(180deg) translateY({$translate_size}px);}";
 			wp_add_inline_style( 'rt-customstyle', $custom_css );
 		}
 		add_action( 'wp_enqueue_scripts', 'rt_custom_enqueue' );
@@ -120,6 +122,10 @@ class Lins_Scroll_To_Top {
 		add_settings_section( 'scrollplugin_07', null, null, 'lins-scroll-to-top-settings' );
 		add_settings_field( 'lins_scroll_arrow_margin', 'Arrow Margin', array( $this, 'arrow_margin_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_07' );
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_margin', array( 'sanitize_callback' => array( $this, 'sanitize_margin' ), 'default' => ARROW_MARGIN_DEF ) );
+
+		add_settings_section( 'scrollplugin_08', null, null, 'lins-scroll-to-top-settings' );
+		add_settings_field( 'lins_scroll_arrow_translate', 'Arrow Translate Height (moving up when hovering)', array( $this, 'arrow_translate_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_08' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_translate', array( 'sanitize_callback' => array( $this, 'sanitize_translate' ), 'default' => ARROW_TRANSLATE_DEF ) );
 
 	}
 
@@ -262,6 +268,25 @@ class Lins_Scroll_To_Top {
 		} else {
 			return $input;
 		}
+	}
+
+	function sanitize_translate( $input ) {
+		$field_name = 'lins_scroll_arrow_translate';
+		$min        = 0;
+		$input      = absint( $input );
+		$sanitize   = Lins_Scroll_To_Top::sanitize_min( $field_name, $input, $min );
+		if ( $sanitize === false ) {
+			return get_option( $field_name );
+		} else {
+			return $input;
+		}
+	}
+
+	function arrow_translate_html() {
+		?>
+		<input type="number" name="lins_scroll_arrow_translate" min="0" step="1"
+			value="<?php echo esc_attr( get_option( 'lins_scroll_arrow_translate' ) ) ?>"> px
+		<?php
 	}
 
 	function bg_size_html() {
