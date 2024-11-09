@@ -64,6 +64,7 @@ class Lins_Scroll_To_Top {
 			$arrow_color       = get_option( 'scroll_arrow_color', '#56585E' );
 			list( $r, $g, $b ) = sscanf( $arrow_color, "#%02x%02x%02x" );
 			$size              = get_option( 'scroll_bg_size', 80 );
+			$arrow_size        = get_option( 'scroll_bg_size', 65 );
 			$custom_css        = ".scroll-arrow {
 										background-color: rgba( {$r} , {$g} , {$b} , {$opacity} );
 										width: {$size}px;
@@ -73,8 +74,7 @@ class Lins_Scroll_To_Top {
 			$arrow_color_hover = get_option( 'scroll_arrow_color_hover', '#3E6EA2' );
 			list( $r, $g, $b ) = sscanf( $arrow_color_hover, "#%02x%02x%02x" );
 			$custom_css .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( {$r} , {$g} , {$b} , {$opacity_hover} ) ; }";
-
-
+			$custom_css .= ".scroll-arrow svg {width: {$arrow_size}%;}";
 
 			wp_add_inline_style( 'rt-customstyle', $custom_css );
 		}
