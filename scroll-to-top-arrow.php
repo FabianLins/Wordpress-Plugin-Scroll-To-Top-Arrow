@@ -72,7 +72,7 @@ class Lins_Scroll_To_Top {
 			$opacity_hover     = get_option( 'scroll_arrow_opacity_hover', 1 );
 			$arrow_color_hover = get_option( 'scroll_arrow_color_hover', '#3E6EA2' );
 			list( $r, $g, $b ) = sscanf( $arrow_color_hover, "#%02x%02x%02x" );
-			$custom_css .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( $r , $g , $b , $opacity_hover ) ; }";
+			$custom_css .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( {$r} , {$g} , {$b} , {$opacity_hover} ) ; }";
 
 
 
