@@ -65,7 +65,7 @@ class Lins_Scroll_To_Top {
 			list( $r, $g, $b ) = sscanf( $arrow_color, "#%02x%02x%02x" );
 			$size              = get_option( 'scroll_arrow_size', 80 );
 			$custom_css        = ".scroll-arrow {
-										background-color: rgba( $r , $g , $b , $opacity );
+										background-color: rgba( {$r} , {$g} , {$b} , {$opacity} );
 										width: {$size}px;
 										height: {$size}px;
 								    }";
