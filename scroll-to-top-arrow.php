@@ -18,6 +18,9 @@ class Lins_Scroll_To_Top {
 		define( 'ARROW_SIZE_DEF', 65 );
 		define( 'ARROW_MARGIN_DEF', 40 );
 		define( 'ARROW_TRANSLATE_DEF', 10 );
+		define( 'BG_HEIGHT_DEF', 160 );
+
+
 
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'admin_init', array( $this, 'settings' ) );
@@ -76,19 +79,23 @@ class Lins_Scroll_To_Top {
 			$arrow_size        = get_option( 'lins_scroll_arrow_size', ARROW_SIZE_DEF );
 			$margin_size       = get_option( 'lins_scroll_arrow_margin', ARROW_MARGIN_DEF );
 			$translate_size    = get_option( 'lins_scroll_arrow_translate', ARROW_TRANSLATE_DEF );
-			$custom_css        = ".scroll-arrow {
+			$opacity_hover     = get_option( 'lins_scroll_arrow_opacity_hover', ARROW_OPACITY_HOVER_DEF );
+			$arrow_color_hover = get_option( 'lins_scroll_arrow_color_hover', ARROW_COLOR_HOVER_DEF );
+			list( $r, $g, $b ) = sscanf( $arrow_color_hover, "#%02x%02x%02x" );
+			$bg_height         = get_option( 'lins_scroll_bg_height', BG_HEIGHT_DEF );
+
+			$custom_css = ".scroll-arrow {
 										background-color: rgba( {$r} , {$g} , {$b} , {$opacity} );
 										width: {$size}px;
 										height: {$size}px;
 										right: {$margin_size}px;
 										bottom: {$margin_size}px;
 								    }";
-			$opacity_hover     = get_option( 'lins_scroll_arrow_opacity_hover', ARROW_OPACITY_HOVER_DEF );
-			$arrow_color_hover = get_option( 'lins_scroll_arrow_color_hover', ARROW_COLOR_HOVER_DEF );
-			list( $r, $g, $b ) = sscanf( $arrow_color_hover, "#%02x%02x%02x" );
 			$custom_css .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( {$r} , {$g} , {$b} , {$opacity_hover} ) ; }";
 			$custom_css .= ".scroll-arrow svg {width: {$arrow_size}%;}";
 			$custom_css .= ".scroll-arrow:hover svg, .scroll-arrow:focus-within svg { transform: rotate(180deg) translateY({$translate_size}px);}";
+			$custom_css .= ".scroll-bottom-fade { height:{$bg_height}px";
+
 			wp_add_inline_style( 'rt-customstyle', $custom_css );
 		}
 		add_action( 'wp_enqueue_scripts', 'rt_custom_enqueue' );
@@ -116,33 +123,72 @@ class Lins_Scroll_To_Top {
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_size', array( 'sanitize_callback' => array( $this, 'sanitize_size' ), 'default' => BG_SIZE_DEF ) );
 
 		add_settings_section( 'scrollplugin_06', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_size', 'Arrow Size', array( $this, 'arrow_size_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_06' );
+		add_settings_field( 'lins_scroll_arrow_size', 'Arrow Size (% of Arrow Background Size)', array( $this, 'arrow_size_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_06' );
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_size', array( 'sanitize_callback' => array( $this, 'sanitize_size_min_max' ), 'default' => ARROW_SIZE_DEF ) );
 
 		add_settings_section( 'scrollplugin_07', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_margin', 'Arrow Margin', array( $this, 'arrow_margin_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_07' );
+		add_settings_field( 'lins_scroll_arrow_margin', 'Arrow Margin from Screen', array( $this, 'arrow_margin_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_07' );
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_margin', array( 'sanitize_callback' => array( $this, 'sanitize_margin' ), 'default' => ARROW_MARGIN_DEF ) );
 
 		add_settings_section( 'scrollplugin_08', null, null, 'lins-scroll-to-top-settings' );
 		add_settings_field( 'lins_scroll_arrow_translate', 'Arrow Translate Height (moving up when hovering)', array( $this, 'arrow_translate_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_08' );
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_translate', array( 'sanitize_callback' => array( $this, 'sanitize_translate' ), 'default' => ARROW_TRANSLATE_DEF ) );
 
+		add_settings_section( 'scrollplugin_09', null, null, 'lins-scroll-to-top-settings' );
+		add_settings_field( 'lins_scroll_bg_height', '(Black) Background Height (showing up when hovering)', array( $this, 'bg_height_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_09' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height' ), 'default' => BG_HEIGHT_DEF ) );
+
 	}
 
 	function sanitize_min_max( $field_name, $input, $min, $max ) {
+		if ( ! is_numeric( $input ) ) {
+			add_settings_error( $field_name, "{$field_name}_number_error", "Input value of {$field_name} is not a number" );
+			return false;
+		}
+		if ( ! is_numeric( $min ) || ! is_numeric( $max ) ) {
+			add_settings_error( $field_name, "{$field_name}_min_max_number_error", 'Input value of the set minimum or maximum is not a number! The error is not caused by the input but by set maximum and minimum values within the plugin.' );
+			return false;
+		}
 		if ( $input < $min or $input > $max ) {
-			add_settings_error( $field_name, $field_name . '_min_max_error', 'Input value of ' . $field_name . ' is either below the minimum or above the maximum value' );
+			add_settings_error( $field_name, "{$field_name}_min_error", 'Input value of ' . $field_name . ' is either below the minimum or above the maximum value' );
 			return false;
 		}
 		return true;
 	}
 
 	function sanitize_min( $field_name, $input, $min ) {
+		if ( ! is_numeric( $input ) ) {
+			add_settings_error( $field_name, "{$field_name}_number_error", "Input value of {$field_name} is not a number" );
+			return false;
+		}
+		if ( ! is_numeric( $min ) ) {
+			add_settings_error( $field_name, "{$field_name}_min_number_error", 'Input value of the set minimum is not a number! The error is not caused by the input but by a set minimum value within the plugin.' );
+			return false;
+		}
 		if ( $input < $min ) {
-			add_settings_error( $field_name, $field_name . '_min_error', 'Input value of ' . $field_name . ' is below the minimum value' );
+			add_settings_error( $field_name, "{$field_name}_min_error", "Input value of {$field_name} is below the minimum value" );
 			return false;
 		}
 		return true;
+	}
+
+	function sanitize_bg_height( $input ) {
+		$field_name = 'lins_scroll_bg_height';
+		$min        = 0;
+		$input      = absint( $input );
+		$sanitize   = Lins_Scroll_To_Top::sanitize_min( $field_name, $input, $min );
+		if ( $sanitize === false ) {
+			return get_option( $field_name );
+		} else {
+			return $input;
+		}
+	}
+
+	function bg_height_html() {
+		?>
+		<input type="number" name="lins_scroll_bg_height" min="0" step="1"
+			value="<?php echo esc_attr( get_option( 'lins_scroll_bg_height' ) ); ?>" /> px
+		<?php
 	}
 
 	function sanitize_opacity( $input ) {
@@ -159,7 +205,7 @@ class Lins_Scroll_To_Top {
 
 	function opacity_html() {
 		?>
-		<input type="number" name="lins_scroll_arrow_opacity" min="0.0" max="1" step="0.1"
+		<input type="number" name="lins_scroll_arrow_opacity" min="0.0" max="1" step="0.01"
 			value="<?php echo esc_attr( get_option( 'lins_scroll_arrow_opacity' ) ); ?>" />
 		<?php
 	}
@@ -175,7 +221,7 @@ class Lins_Scroll_To_Top {
 			$sanitize = true;
 		}
 		if ( $sanitize === false ) {
-			add_settings_error( $field_name, $field_name . '_invalid_hex_code', 'Input value of ' . $field_name . ' is not a valid HEX code (for example: #FF0000). ' );
+			add_settings_error( $field_name, "{$field_name}_invalid_hex_code", "Input value of {$field_name} is not a valid HEX code (for example: #FF0000)." );
 			return get_option( $field_name );
 		} else {
 			return $input;
@@ -203,7 +249,7 @@ class Lins_Scroll_To_Top {
 
 	function opacity_hover_html() {
 		?>
-		<input type="number" name="lins_scroll_arrow_opacity_hover" min="0.0" max="1" step="0.1"
+		<input type="number" name="lins_scroll_arrow_opacity_hover" min="0.0" max="1" step="0.01"
 			value="<?php echo esc_attr( get_option( 'lins_scroll_arrow_opacity_hover' ) ) ?>">
 		<?php
 	}
@@ -219,7 +265,7 @@ class Lins_Scroll_To_Top {
 			$sanitize = true;
 		}
 		if ( $sanitize === false ) {
-			add_settings_error( $field_name, $field_name . '_invalid_hex_code', 'Input value of ' . $field_name . ' is not a valid HEX code (for example: #FF0000). ' );
+			add_settings_error( $field_name, "{$field_name}_invalid_hex_code", "Input value of {$field_name} is not a valid HEX code (for example: #FF0000)." );
 			return get_option( $field_name );
 		} else {
 			return $input;
