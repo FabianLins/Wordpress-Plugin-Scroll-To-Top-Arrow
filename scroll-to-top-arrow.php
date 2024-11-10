@@ -10,6 +10,13 @@
 
 class Lins_Scroll_To_Top {
 	function __construct() {
+		//Breakpoints
+		define( 'BP_LG', 992 );
+		define( 'BP_MD', 768 );
+		define( 'BP_SM', 576 );
+
+
+		//Defaults
 		define( 'ARROW_COLOR_DEF', '#56585E' );
 		define( 'ARROW_COLOR_HOVER_DEF', '#3E6EA2' );
 		define( 'ARROW_OPACITY_DEF', 0.7 );
@@ -19,7 +26,9 @@ class Lins_Scroll_To_Top {
 		define( 'ARROW_MARGIN_DEF', 40 );
 		define( 'ARROW_TRANSLATE_DEF', 10 );
 		define( 'BG_HEIGHT_DEF', 160 );
-
+		define( 'BG_HEIGHT_LG_DEF', 160 );
+		define( 'BG_HEIGHT_MD_DEF', 160 );
+		define( 'BG_HEIGHT_SM_DEF', 160 );
 
 
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
@@ -83,6 +92,10 @@ class Lins_Scroll_To_Top {
 			$arrow_color_hover = get_option( 'lins_scroll_arrow_color_hover', ARROW_COLOR_HOVER_DEF );
 			list( $r, $g, $b ) = sscanf( $arrow_color_hover, "#%02x%02x%02x" );
 			$bg_height         = get_option( 'lins_scroll_bg_height', BG_HEIGHT_DEF );
+			$bg_height_lg      = get_option( 'lins_scroll_bg_height_lg', BG_HEIGHT_LG_DEF );
+			$bg_height_md      = get_option( 'lins_scroll_bg_height_md', BG_HEIGHT_MD_DEF );
+			$bg_height_sm      = get_option( 'lins_scroll_bg_height_sm', BG_HEIGHT_SM_DEF );
+
 
 			$custom_css = ".scroll-arrow {
 										background-color: rgba( {$r} , {$g} , {$b} , {$opacity} );
@@ -94,7 +107,10 @@ class Lins_Scroll_To_Top {
 			$custom_css .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( {$r} , {$g} , {$b} , {$opacity_hover} ) ; }";
 			$custom_css .= ".scroll-arrow svg {width: {$arrow_size}%;}";
 			$custom_css .= ".scroll-arrow:hover svg, .scroll-arrow:focus-within svg { transform: rotate(180deg) translateY({$translate_size}px);}";
-			$custom_css .= ".scroll-bottom-fade { height:{$bg_height}px";
+			$custom_css .= ".scroll-bottom-fade { height:{$bg_height}px; }";
+			$custom_css .= "@media only screen and (max-width: " . BP_LG . "px) { .scroll-bottom-fade { height:{$bg_height_lg}px;}}";
+			$custom_css .= "@media only screen and (max-width: " . BP_MD . "px) { .scroll-bottom-fade { height:{$bg_height_md}px;}}";
+			$custom_css .= "@media only screen and (max-width: " . BP_SM . "px) { .scroll-bottom-fade { height:{$bg_height_sm}px;}}";
 
 			wp_add_inline_style( 'rt-customstyle', $custom_css );
 		}
@@ -138,6 +154,18 @@ class Lins_Scroll_To_Top {
 		add_settings_field( 'lins_scroll_bg_height', '(Black) Background Height (showing up when hovering)', array( $this, 'bg_height_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_09' );
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height' ), 'default' => BG_HEIGHT_DEF ) );
 
+		add_settings_section( 'scrollplugin_10', null, null, 'lins-scroll-to-top-settings' );
+		add_settings_field( 'lins_scroll_bg_height_lg', 'Background Height (screen <= ' . BP_LG . 'px)', array( $this, 'bg_height_lg_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_10' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_lg', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_lg' ), 'default' => BG_HEIGHT_LG_DEF ) );
+
+		add_settings_section( 'scrollplugin_11', null, null, 'lins-scroll-to-top-settings' );
+		add_settings_field( 'lins_scroll_bg_height_md', 'Background Height (screen <= ' . BP_MD . 'px)', array( $this, 'bg_height_md_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_11' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_md', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_md' ), 'default' => BG_HEIGHT_MD_DEF ) );
+
+		add_settings_section( 'scrollplugin_12', null, null, 'lins-scroll-to-top-settings' );
+		add_settings_field( 'lins_scroll_bg_height_sm', 'Background Height (screen <= ' . BP_SM . 'px)', array( $this, 'bg_height_sm_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_12' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_sm', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_sm' ), 'default' => BG_HEIGHT_SM_DEF ) );
+
 	}
 
 	function sanitize_min_max( $field_name, $input, $min, $max ) {
@@ -170,6 +198,64 @@ class Lins_Scroll_To_Top {
 			return false;
 		}
 		return true;
+	}
+
+	function sanitize_bg_height_sm( $input ) {
+		$field_name = 'lins_scroll_bg_height_sm';
+		$min        = 0;
+		$input      = absint( $input );
+		$sanitize   = Lins_Scroll_To_Top::sanitize_min( $field_name, $input, $min );
+		if ( $sanitize === false ) {
+			return get_option( $field_name );
+		} else {
+			return $input;
+		}
+	}
+
+	function bg_height_sm_html() {
+		?>
+		<input type="number" name="lins_scroll_bg_height_sm" min="0" step="1"
+			value="<?php echo esc_attr( get_option( 'lins_scroll_bg_height_sm' ) ); ?>" /> px
+		<?php
+	}
+
+
+	function sanitize_bg_height_md( $input ) {
+		$field_name = 'lins_scroll_bg_height_md';
+		$min        = 0;
+		$input      = absint( $input );
+		$sanitize   = Lins_Scroll_To_Top::sanitize_min( $field_name, $input, $min );
+		if ( $sanitize === false ) {
+			return get_option( $field_name );
+		} else {
+			return $input;
+		}
+	}
+
+	function bg_height_md_html() {
+		?>
+		<input type="number" name="lins_scroll_bg_height_md" min="0" step="1"
+			value="<?php echo esc_attr( get_option( 'lins_scroll_bg_height_md' ) ); ?>" /> px
+		<?php
+	}
+
+	function sanitize_bg_height_lg( $input ) {
+		$field_name = 'lins_scroll_bg_height_lg';
+		$min        = 0;
+		$input      = absint( $input );
+		$sanitize   = Lins_Scroll_To_Top::sanitize_min( $field_name, $input, $min );
+		if ( $sanitize === false ) {
+			return get_option( $field_name );
+		} else {
+			return $input;
+		}
+	}
+
+	function bg_height_lg_html() {
+		?>
+		<input type="number" name="lins_scroll_bg_height_lg" min="0" step="1"
+			value="<?php echo esc_attr( get_option( 'lins_scroll_bg_height_lg' ) ); ?>" /> px
+		<?php
 	}
 
 	function sanitize_bg_height( $input ) {
