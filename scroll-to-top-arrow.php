@@ -29,6 +29,8 @@ class Lins_Scroll_To_Top {
 		define( 'BG_HEIGHT_LG_DEF', 160 );
 		define( 'BG_HEIGHT_MD_DEF', 160 );
 		define( 'BG_HEIGHT_SM_DEF', 160 );
+		define( 'BG_COLOR_DEF', '#0D0C0E' );
+		define( 'BG_OPACITY_DEF', 0.3 );
 
 
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
@@ -81,21 +83,23 @@ class Lins_Scroll_To_Top {
 
 		function rt_custom_enqueue() {
 			wp_enqueue_style( 'rt-customstyle', get_template_directory_uri() . '/css/custom.css', array(), '1.0.0', 'all' );
-			$opacity           = get_option( 'lins_scroll_arrow_opacity', ARROW_OPACITY_DEF );
-			$arrow_color       = get_option( 'lins_scroll_arrow_color', ARROW_COLOR_DEF );
-			list( $r, $g, $b ) = sscanf( $arrow_color, "#%02x%02x%02x" );
-			$size              = get_option( 'lins_scroll_bg_size', BG_SIZE_DEF );
-			$arrow_size        = get_option( 'lins_scroll_arrow_size', ARROW_SIZE_DEF );
-			$margin_size       = get_option( 'lins_scroll_arrow_margin', ARROW_MARGIN_DEF );
-			$translate_size    = get_option( 'lins_scroll_arrow_translate', ARROW_TRANSLATE_DEF );
-			$opacity_hover     = get_option( 'lins_scroll_arrow_opacity_hover', ARROW_OPACITY_HOVER_DEF );
-			$arrow_color_hover = get_option( 'lins_scroll_arrow_color_hover', ARROW_COLOR_HOVER_DEF );
-			list( $r, $g, $b ) = sscanf( $arrow_color_hover, "#%02x%02x%02x" );
-			$bg_height         = get_option( 'lins_scroll_bg_height', BG_HEIGHT_DEF );
-			$bg_height_lg      = get_option( 'lins_scroll_bg_height_lg', BG_HEIGHT_LG_DEF );
-			$bg_height_md      = get_option( 'lins_scroll_bg_height_md', BG_HEIGHT_MD_DEF );
-			$bg_height_sm      = get_option( 'lins_scroll_bg_height_sm', BG_HEIGHT_SM_DEF );
-
+			$opacity                    = get_option( 'lins_scroll_arrow_opacity', ARROW_OPACITY_DEF );
+			$arrow_color                = get_option( 'lins_scroll_arrow_color', ARROW_COLOR_DEF );
+			list( $r, $g, $b )          = sscanf( $arrow_color, "#%02x%02x%02x" );
+			$size                       = get_option( 'lins_scroll_bg_size', BG_SIZE_DEF );
+			$arrow_size                 = get_option( 'lins_scroll_arrow_size', ARROW_SIZE_DEF );
+			$margin_size                = get_option( 'lins_scroll_arrow_margin', ARROW_MARGIN_DEF );
+			$translate_size             = get_option( 'lins_scroll_arrow_translate', ARROW_TRANSLATE_DEF );
+			$opacity_hover              = get_option( 'lins_scroll_arrow_opacity_hover', ARROW_OPACITY_HOVER_DEF );
+			$arrow_color_hover          = get_option( 'lins_scroll_arrow_color_hover', ARROW_COLOR_HOVER_DEF );
+			list( $r, $g, $b )          = sscanf( $arrow_color_hover, "#%02x%02x%02x" );
+			$bg_height                  = get_option( 'lins_scroll_bg_height', BG_HEIGHT_DEF );
+			$bg_height_lg               = get_option( 'lins_scroll_bg_height_lg', BG_HEIGHT_LG_DEF );
+			$bg_height_md               = get_option( 'lins_scroll_bg_height_md', BG_HEIGHT_MD_DEF );
+			$bg_height_sm               = get_option( 'lins_scroll_bg_height_sm', BG_HEIGHT_SM_DEF );
+			$bg_color                   = get_option( 'lins_scroll_bg_color', BG_COLOR_DEF );
+			list( $r_bg, $g_bg, $b_bg ) = sscanf( $bg_color, "#%02x%02x%02x" );
+			$bg_opacity                 = get_option( 'lins_scroll_bg_opacity', BG_OPACITY_DEF );
 
 			$custom_css = ".scroll-arrow {
 										background-color: rgba( {$r} , {$g} , {$b} , {$opacity} );
@@ -111,6 +115,8 @@ class Lins_Scroll_To_Top {
 			$custom_css .= "@media only screen and (max-width: " . BP_LG . "px) { .scroll-bottom-fade { height:{$bg_height_lg}px;}}";
 			$custom_css .= "@media only screen and (max-width: " . BP_MD . "px) { .scroll-bottom-fade { height:{$bg_height_md}px;}}";
 			$custom_css .= "@media only screen and (max-width: " . BP_SM . "px) { .scroll-bottom-fade { height:{$bg_height_sm}px;}}";
+			$custom_css .= ".scroll-bottom-fade { background: linear-gradient(180deg, transparent, rgba({$r_bg}, {$g_bg}, {$b_bg}, {$bg_opacity})); }";
+
 
 			wp_add_inline_style( 'rt-customstyle', $custom_css );
 		}
@@ -151,20 +157,28 @@ class Lins_Scroll_To_Top {
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_translate', array( 'sanitize_callback' => array( $this, 'sanitize_translate' ), 'default' => ARROW_TRANSLATE_DEF ) );
 
 		add_settings_section( 'scrollplugin_09', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_height', '(Black) Background Height (showing up when hovering)', array( $this, 'bg_height_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_09' );
+		add_settings_field( 'lins_scroll_bg_height', 'Background Shadow Height (showing up when hovering)', array( $this, 'bg_height_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_09' );
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height' ), 'default' => BG_HEIGHT_DEF ) );
 
 		add_settings_section( 'scrollplugin_10', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_height_lg', 'Background Height (screen <= ' . BP_LG . 'px)', array( $this, 'bg_height_lg_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_10' );
+		add_settings_field( 'lins_scroll_bg_height_lg', 'Background Shadow Height (screen <= ' . BP_LG . 'px)', array( $this, 'bg_height_lg_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_10' );
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_lg', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_lg' ), 'default' => BG_HEIGHT_LG_DEF ) );
 
 		add_settings_section( 'scrollplugin_11', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_height_md', 'Background Height (screen <= ' . BP_MD . 'px)', array( $this, 'bg_height_md_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_11' );
+		add_settings_field( 'lins_scroll_bg_height_md', 'Background Shadow Height (screen <= ' . BP_MD . 'px)', array( $this, 'bg_height_md_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_11' );
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_md', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_md' ), 'default' => BG_HEIGHT_MD_DEF ) );
 
 		add_settings_section( 'scrollplugin_12', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_height_sm', 'Background Height (screen <= ' . BP_SM . 'px)', array( $this, 'bg_height_sm_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_12' );
+		add_settings_field( 'lins_scroll_bg_height_sm', 'Background Shadow Height (screen <= ' . BP_SM . 'px)', array( $this, 'bg_height_sm_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_12' );
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_sm', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_sm' ), 'default' => BG_HEIGHT_SM_DEF ) );
+
+		add_settings_section( 'scrollplugin_13', null, null, 'lins-scroll-to-top-settings' );
+		add_settings_field( 'lins_scroll_bg_color', 'Background Shadow Color (showing up when hovering)', array( $this, 'bg_color_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_13' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_color', array( 'sanitize_callback' => array( $this, 'sanitize_bg_color' ), 'default' => BG_COLOR_DEF ) );
+
+		add_settings_section( 'scrollplugin_14', null, null, 'lins-scroll-to-top-settings' );
+		add_settings_field( 'lins_scroll_bg_opacity', 'Background Shadow Color (showing up when hovering)', array( $this, 'bg_opacity_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_14' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_opacity', array( 'sanitize_callback' => array( $this, 'sanitize_bg_opacity' ), 'default' => BG_OPACITY_DEF ) );
 
 	}
 
@@ -198,6 +212,50 @@ class Lins_Scroll_To_Top {
 			return false;
 		}
 		return true;
+	}
+
+	function sanitize_bg_opacity( $input ) {
+		$field_name = 'lins_scroll_bg_opacity';
+		$min        = 0;
+		$max        = 1;
+		$sanitize   = Lins_Scroll_To_Top::sanitize_min_max( $field_name, $input, $min, $max );
+		if ( $sanitize === false ) {
+			return get_option( $field_name );
+		} else {
+			return $input;
+		}
+	}
+
+	function bg_opacity_html() {
+		?>
+		<input type="number" name="lins_scroll_bg_opacity" min="0.0" max="1" step="0.01"
+			value="<?php echo esc_attr( get_option( 'lins_scroll_bg_opacity' ) ); ?>" />
+		<?php
+	}
+
+	function sanitize_bg_color( $input ) {
+		$field_name = 'lins_scroll_bg_color';
+		$sanitize   = false;
+		$input      = strtoupper( $input );
+		$rest       = substr( $input, 1, length: strlen( $input ) );
+		$hash_key   = substr( $input, 0, 1 );
+
+		if ( $hash_key === '#' && strlen( $input ) === 7 && ctype_xdigit( $rest ) ) {
+			$sanitize = true;
+		}
+		if ( $sanitize === false ) {
+			add_settings_error( $field_name, "{$field_name}_invalid_hex_code", "Input value of {$field_name} is not a valid HEX code (for example: #FF0000)." );
+			return get_option( $field_name );
+		} else {
+			return $input;
+		}
+	}
+
+	function bg_color_html() {
+		?>
+		<input type="text" name="lins_scroll_bg_color" value="<?php echo esc_attr( get_option( 'lins_scroll_bg_color' ) ); ?>"
+			class="my-color-field" />
+		<?php
 	}
 
 	function sanitize_bg_height_sm( $input ) {
