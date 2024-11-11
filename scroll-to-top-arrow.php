@@ -160,99 +160,124 @@ class Lins_Scroll_To_Top {
 	}
 
 	function settings() {
-		add_settings_section( 'scrollplugin_01', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_opacity', 'Arrow Opacity<br>(min. 0, max. 1)', array( $this, 'opacity_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_01' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_opacity', array( 'sanitize_callback' => array( $this, 'sanitize_opacity' ), 'default' => ARROW_OPACITY_DEF ) );
+		$scrollplugin_02_title = __( 'Arrow Opacity<br>(min. 0, max. 1)', 'scrollplugin_02_title' );
+		$scrollplugin_03_title = __( 'Arrow Background Color', 'scrollplugin_03_title' );
+		$scrollplugin_04_title = __( 'Arrow Opacity Hover<br>(min. 0, max. 1)', 'scrollplugin_04_title' );
+		$scrollplugin_05_title = __( 'Arrow Background Color Hover', 'scrollplugin_05_title' );
+		$scrollplugin_06_title = __( 'Arrow Background Size', 'scrollplugin_06_title' );
+		$scrollplugin_07_title = __( 'Arrow Background Size (screen <= ' . BP_LG . 'px)', 'scrollplugin_07_title' );
+		$scrollplugin_08_title = __( 'Arrow Background Size (screen <= ' . BP_MD . 'px)', 'scrollplugin_08_title' );
+		$scrollplugin_09_title = __( 'Arrow Background Size (screen <= ' . BP_SM . 'px)', 'scrollplugin_09_title' );
+		$scrollplugin_10_title = __( 'Arrow Size (% of Arrow Background Size)', 'scrollplugin_10_title' );
+		$scrollplugin_11_title = __( 'Arrow Margin from Screen', 'scrollplugin_11_title' );
+		$scrollplugin_12_title = __( 'Arrow Margin from Screen (screen <= ' . BP_LG . 'px)', 'scrollplugin_12_title' );
+		$scrollplugin_13_title = __( 'Arrow Margin from Screen (screen <= ' . BP_MD . 'px)', 'scrollplugin_13_title' );
+		$scrollplugin_14_title = __( 'Arrow Margin from Screen (screen <= ' . BP_SM . 'px)', 'scrollplugin_14_title' );
+		$scrollplugin_15_title = __( 'Arrow Translate Height (moving up when hovering)', 'scrollplugin_15_title' );
+		$scrollplugin_16_title = __( 'Background Shadow Height (showing up when hovering)', 'scrollplugin_16_title' );
+		$scrollplugin_17_title = __( 'Background Shadow Height (screen <= ' . BP_LG . 'px)', 'scrollplugin_17_title' );
+		$scrollplugin_18_title = __( 'Background Shadow Height (screen <= ' . BP_MD . 'px)', 'scrollplugin_18_title' );
+		$scrollplugin_19_title = __( 'Background Shadow Height (screen <= ' . BP_SM . 'px)', 'scrollplugin_19_title' );
+		$scrollplugin_20_title = __( 'Background Shadow Color (showing up when hovering)', 'scrollplugin_20_title' );
+		$scrollplugin_21_title = __( 'Background Shadow Opacity (showing up when hovering)', 'scrollplugin_21_title' );
+
 
 		add_settings_section( 'scrollplugin_02', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_color', 'Arrow Background Color', array( $this, 'color_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_02' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_color', array( 'sanitize_callback' => array( $this, 'sanitize_color' ), 'default' => ARROW_COLOR_DEF ) );
+		add_settings_field( 'lins_scroll_arrow_opacity', $scrollplugin_02_title, array( $this, 'opacity_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_02' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_opacity', array( 'sanitize_callback' => array( $this, 'sanitize_opacity' ), 'default' => ARROW_OPACITY_DEF ) );
 
 		add_settings_section( 'scrollplugin_03', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_opacity_hover', 'Arrow Opacity Hover<br>(min. 0, max. 1)', array( $this, 'opacity_hover_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_03' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_opacity_hover', array( 'sanitize_callback' => array( $this, 'sanitize_opacity_hover' ), 'default' => ARROW_OPACITY_HOVER_DEF ) );
+		add_settings_field( 'lins_scroll_arrow_color', $scrollplugin_03_title, array( $this, 'color_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_03' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_color', array( 'sanitize_callback' => array( $this, 'sanitize_color' ), 'default' => ARROW_COLOR_DEF ) );
 
 		add_settings_section( 'scrollplugin_04', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_color', 'Arrow Background Color Hover', array( $this, 'color_hover_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_04' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_color_hover', array( 'sanitize_callback' => array( $this, 'sanitize_color_hover' ), 'default' => ARROW_COLOR_HOVER_DEF ) );
+		add_settings_field( 'lins_scroll_arrow_opacity_hover', $scrollplugin_04_title, array( $this, 'opacity_hover_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_04' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_opacity_hover', array( 'sanitize_callback' => array( $this, 'sanitize_opacity_hover' ), 'default' => ARROW_OPACITY_HOVER_DEF ) );
 
 		add_settings_section( 'scrollplugin_05', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_size', 'Arrow Background Size', array( $this, 'bg_size_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_05' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_size', array( 'sanitize_callback' => array( $this, 'sanitize_size' ), 'default' => BG_SIZE_DEF ) );
+		add_settings_field( 'lins_scroll_arrow_color', $scrollplugin_05_title, array( $this, 'color_hover_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_05' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_color_hover', array( 'sanitize_callback' => array( $this, 'sanitize_color_hover' ), 'default' => ARROW_COLOR_HOVER_DEF ) );
 
 		add_settings_section( 'scrollplugin_06', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_size_lg', 'Arrow Background Size (screen <= ' . BP_LG . 'px)', array( $this, 'bg_size_lg_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_06' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_size_lg', array( 'sanitize_callback' => array( $this, 'sanitize_size_lg' ), 'default' => BG_SIZE_LG_DEF ) );
+		add_settings_field( 'lins_scroll_bg_size', $scrollplugin_06_title, array( $this, 'bg_size_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_06' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_size', array( 'sanitize_callback' => array( $this, 'sanitize_size' ), 'default' => BG_SIZE_DEF ) );
 
 		add_settings_section( 'scrollplugin_07', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_size_md', 'Arrow Background Size (screen <= ' . BP_MD . 'px)', array( $this, 'bg_size_md_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_07' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_size_md', array( 'sanitize_callback' => array( $this, 'sanitize_size_md' ), 'default' => BG_SIZE_MD_DEF ) );
+		add_settings_field( 'lins_scroll_bg_size_lg', $scrollplugin_07_title, array( $this, 'bg_size_lg_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_07' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_size_lg', array( 'sanitize_callback' => array( $this, 'sanitize_size_lg' ), 'default' => BG_SIZE_LG_DEF ) );
 
 		add_settings_section( 'scrollplugin_08', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_size_sm', 'Arrow Background Size (screen <= ' . BP_SM . 'px)', array( $this, 'bg_size_sm_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_08' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_size_sm', array( 'sanitize_callback' => array( $this, 'sanitize_size_sm' ), 'default' => BG_SIZE_SM_DEF ) );
+		add_settings_field( 'lins_scroll_bg_size_md', $scrollplugin_08_title, array( $this, 'bg_size_md_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_08' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_size_md', array( 'sanitize_callback' => array( $this, 'sanitize_size_md' ), 'default' => BG_SIZE_MD_DEF ) );
 
 		add_settings_section( 'scrollplugin_09', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_size', 'Arrow Size (% of Arrow Background Size)', array( $this, 'arrow_size_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_09' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_size', array( 'sanitize_callback' => array( $this, 'sanitize_size_min_max' ), 'default' => ARROW_SIZE_DEF ) );
+		add_settings_field( 'lins_scroll_bg_size_sm', $scrollplugin_09_title, array( $this, 'bg_size_sm_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_09' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_size_sm', array( 'sanitize_callback' => array( $this, 'sanitize_size_sm' ), 'default' => BG_SIZE_SM_DEF ) );
 
 		add_settings_section( 'scrollplugin_10', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_margin', 'Arrow Margin from Screen', array( $this, 'arrow_margin_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_10' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_margin', array( 'sanitize_callback' => array( $this, 'sanitize_margin' ), 'default' => ARROW_MARGIN_DEF ) );
+		add_settings_field( 'lins_scroll_arrow_size', $scrollplugin_10_title, array( $this, 'arrow_size_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_10' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_size', array( 'sanitize_callback' => array( $this, 'sanitize_size_min_max' ), 'default' => ARROW_SIZE_DEF ) );
 
 		add_settings_section( 'scrollplugin_11', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_margin_lg', 'Arrow Margin from Screen (screen <= ' . BP_LG . 'px)', array( $this, 'arrow_margin_lg_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_11' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_margin_lg', array( 'sanitize_callback' => array( $this, 'sanitize_margin_lg' ), 'default' => ARROW_MARGIN_LG_DEF ) );
+		add_settings_field( 'lins_scroll_arrow_margin', $scrollplugin_11_title, array( $this, 'arrow_margin_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_11' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_margin', array( 'sanitize_callback' => array( $this, 'sanitize_margin' ), 'default' => ARROW_MARGIN_DEF ) );
 
 		add_settings_section( 'scrollplugin_12', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_margin_md', 'Arrow Margin from Screen (screen <= ' . BP_MD . 'px)', array( $this, 'arrow_margin_md_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_12' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_margin_md', array( 'sanitize_callback' => array( $this, 'sanitize_margin_md' ), 'default' => ARROW_MARGIN_MD_DEF ) );
+		add_settings_field( 'lins_scroll_arrow_margin_lg', $scrollplugin_12_title, array( $this, 'arrow_margin_lg_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_12' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_margin_lg', array( 'sanitize_callback' => array( $this, 'sanitize_margin_lg' ), 'default' => ARROW_MARGIN_LG_DEF ) );
 
 		add_settings_section( 'scrollplugin_13', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_margin_sm', 'Arrow Margin from Screen (screen <= ' . BP_SM . 'px)', array( $this, 'arrow_margin_sm_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_13' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_margin_sm', array( 'sanitize_callback' => array( $this, 'sanitize_margin_sm' ), 'default' => ARROW_MARGIN_SM_DEF ) );
+		add_settings_field( 'lins_scroll_arrow_margin_md', $scrollplugin_13_title, array( $this, 'arrow_margin_md_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_13' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_margin_md', array( 'sanitize_callback' => array( $this, 'sanitize_margin_md' ), 'default' => ARROW_MARGIN_MD_DEF ) );
 
 		add_settings_section( 'scrollplugin_14', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_arrow_translate', 'Arrow Translate Height (moving up when hovering)', array( $this, 'arrow_translate_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_14' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_translate', array( 'sanitize_callback' => array( $this, 'sanitize_translate' ), 'default' => ARROW_TRANSLATE_DEF ) );
+		add_settings_field( 'lins_scroll_arrow_margin_sm', $scrollplugin_14_title, array( $this, 'arrow_margin_sm_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_14' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_margin_sm', array( 'sanitize_callback' => array( $this, 'sanitize_margin_sm' ), 'default' => ARROW_MARGIN_SM_DEF ) );
 
 		add_settings_section( 'scrollplugin_15', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_height', 'Background Shadow Height (showing up when hovering)', array( $this, 'bg_height_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_15' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height' ), 'default' => BG_HEIGHT_DEF ) );
+		add_settings_field( 'lins_scroll_arrow_translate', $scrollplugin_15_title, array( $this, 'arrow_translate_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_15' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_arrow_translate', array( 'sanitize_callback' => array( $this, 'sanitize_translate' ), 'default' => ARROW_TRANSLATE_DEF ) );
 
 		add_settings_section( 'scrollplugin_16', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_height_lg', 'Background Shadow Height (screen <= ' . BP_LG . 'px)', array( $this, 'bg_height_lg_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_16' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_lg', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_lg' ), 'default' => BG_HEIGHT_LG_DEF ) );
+		add_settings_field( 'lins_scroll_bg_height', $scrollplugin_16_title, array( $this, 'bg_height_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_16' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height' ), 'default' => BG_HEIGHT_DEF ) );
 
 		add_settings_section( 'scrollplugin_17', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_height_md', 'Background Shadow Height (screen <= ' . BP_MD . 'px)', array( $this, 'bg_height_md_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_17' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_md', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_md' ), 'default' => BG_HEIGHT_MD_DEF ) );
+		add_settings_field( 'lins_scroll_bg_height_lg', $scrollplugin_17_title, array( $this, 'bg_height_lg_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_17' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_lg', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_lg' ), 'default' => BG_HEIGHT_LG_DEF ) );
 
 		add_settings_section( 'scrollplugin_18', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_height_sm', 'Background Shadow Height (screen <= ' . BP_SM . 'px)', array( $this, 'bg_height_sm_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_18' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_sm', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_sm' ), 'default' => BG_HEIGHT_SM_DEF ) );
+		add_settings_field( 'lins_scroll_bg_height_md', $scrollplugin_18_title, array( $this, 'bg_height_md_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_18' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_md', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_md' ), 'default' => BG_HEIGHT_MD_DEF ) );
 
 		add_settings_section( 'scrollplugin_19', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_color', 'Background Shadow Color (showing up when hovering)', array( $this, 'bg_color_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_19' );
-		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_color', array( 'sanitize_callback' => array( $this, 'sanitize_bg_color' ), 'default' => BG_COLOR_DEF ) );
+		add_settings_field( 'lins_scroll_bg_height_sm', $scrollplugin_19_title, array( $this, 'bg_height_sm_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_19' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_height_sm', array( 'sanitize_callback' => array( $this, 'sanitize_bg_height_sm' ), 'default' => BG_HEIGHT_SM_DEF ) );
 
 		add_settings_section( 'scrollplugin_20', null, null, 'lins-scroll-to-top-settings' );
-		add_settings_field( 'lins_scroll_bg_opacity', 'Background Shadow Color (showing up when hovering)', array( $this, 'bg_opacity_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_20' );
+		add_settings_field( 'lins_scroll_bg_color', $scrollplugin_20_title, array( $this, 'bg_color_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_20' );
+		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_color', array( 'sanitize_callback' => array( $this, 'sanitize_bg_color' ), 'default' => BG_COLOR_DEF ) );
+
+		add_settings_section( 'scrollplugin_21', null, null, 'lins-scroll-to-top-settings' );
+		add_settings_field( 'lins_scroll_bg_opacity', $scrollplugin_21_title, array( $this, 'bg_opacity_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_21' );
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_opacity', array( 'sanitize_callback' => array( $this, 'sanitize_bg_opacity' ), 'default' => BG_OPACITY_DEF ) );
 	}
 
 	// Sanitzing
 	function sanitize_min_max( $field_name, $input, $min, $max ) {
 		if ( ! is_numeric( $input ) ) {
-			add_settings_error( $field_name, "{$field_name}_number_error", "Input value of {$field_name} is not a number" );
+			$sanitize_min_max_num_error = __( "Input value of {$field_name} is not a number.", 'sanitize_min_max_num_error' );
+			add_settings_error( $field_name, "{$field_name}_number_error", $sanitize_min_max_num_error );
 			return false;
 		}
 		if ( ! is_numeric( $min ) || ! is_numeric( $max ) ) {
-			add_settings_error( $field_name, "{$field_name}_min_max_number_error", 'Input value of the set minimum or maximum is not a number! The error is not caused by the input but by set maximum and minimum values within the plugin.' );
+			$sanitize_min_max_num_error2 = __( 'Input value of the set minimum or maximum is not a number! The error is not caused by the input but by set maximum and minimum values within the plugin.', 'sanitize_min_max_num_error2' );
+			add_settings_error( $field_name, "{$field_name}_min_max_number_error", $sanitize_min_max_num_error2 );
 			return false;
 		}
 		if ( $input < $min or $input > $max ) {
-			add_settings_error( $field_name, "{$field_name}_min_error", 'Input value of ' . $field_name . ' is either below the minimum or above the maximum value' );
+			$sanitize_min_max_val_error = __( "Input value of {$field_name} is either below the minimum or above the maximum value.", 'sanitize_min_max_val_error' );
+			add_settings_error( $field_name, "{$field_name}_min_error", $sanitize_min_max_val_error );
 			return false;
 		}
 		return true;
@@ -260,18 +285,35 @@ class Lins_Scroll_To_Top {
 
 	function sanitize_min( $field_name, $input, $min ) {
 		if ( ! is_numeric( $input ) ) {
-			add_settings_error( $field_name, "{$field_name}_number_error", "Input value of {$field_name} is not a number" );
+			$sanitize_min_num_error = __( "Input value of {$field_name} is not a number.", 'sanitize_min_num_error' );
+			add_settings_error( $field_name, "{$field_name}_number_error", $sanitize_min_num_error );
 			return false;
 		}
 		if ( ! is_numeric( $min ) ) {
-			add_settings_error( $field_name, "{$field_name}_min_number_error", 'Input value of the set minimum is not a number! The error is not caused by the input but by a set minimum value within the plugin.' );
+			$sanitize_min_num_error2 = __( 'Input value of the set minimum is not a number! The error is not caused by the input but by a set minimum value within the plugin.', 'sanitize_min_num_error2' );
+			add_settings_error( $field_name, "{$field_name}_min_number_error", $sanitize_min_num_error2 );
 			return false;
 		}
 		if ( $input < $min ) {
-			add_settings_error( $field_name, "{$field_name}_min_error", "Input value of {$field_name} is below the minimum value" );
+			$sanitize_min_val_error = __( "Input value of {$field_name} is below the minimum value", 'sanitize_min_val_error' );
+			add_settings_error( $field_name, "{$field_name}_min_error", );
 			return false;
 		}
 		return true;
+	}
+
+	function sanitize_hex( $field_name, $input ) {
+		$input    = strtoupper( $input );
+		$rest     = substr( $input, 1, strlen( $input ) );
+		$hash_key = substr( $input, 0, 1 );
+
+		if ( $hash_key === '#' && strlen( $input ) === 7 && ctype_xdigit( $rest ) ) {
+			return true;
+		} else {
+			$sanitize_hex_error = __( "{$field_name}_invalid_hex_code", "Input value of {$field_name} is not a valid HEX code (for example: #FF0000).", 'sanitize_hex_error' );
+			add_settings_error( $field_name, $sanitize_hex_error );
+			return false;
+		}
 	}
 
 	// Settings sanitizing
@@ -289,16 +331,8 @@ class Lins_Scroll_To_Top {
 
 	function sanitize_color( $input ) {
 		$field_name = 'lins_scroll_arrow_color';
-		$sanitize   = false;
-		$input      = strtoupper( $input );
-		$rest       = substr( $input, 1, strlen( $input ) );
-		$hash_key   = substr( $input, 0, 1 );
-
-		if ( $hash_key === '#' && strlen( $input ) === 7 && ctype_xdigit( $rest ) ) {
-			$sanitize = true;
-		}
+		$sanitize   = Lins_Scroll_To_Top::sanitize_hex( $field_name, $input );
 		if ( $sanitize === false ) {
-			add_settings_error( $field_name, "{$field_name}_invalid_hex_code", "Input value of {$field_name} is not a valid HEX code (for example: #FF0000)." );
 			return get_option( $field_name );
 		} else {
 			return $input;
@@ -319,16 +353,8 @@ class Lins_Scroll_To_Top {
 
 	function sanitize_color_hover( $input ) {
 		$field_name = 'lins_scroll_arrow_color_hover';
-		$sanitize   = false;
-		$input      = strtoupper( $input );
-		$rest       = substr( $input, 1, strlen( $input ) );
-		$hash_key   = substr( $input, 0, 1 );
-
-		if ( $hash_key === '#' && strlen( $input ) === 7 && ctype_xdigit( $rest ) ) {
-			$sanitize = true;
-		}
+		$sanitize   = Lins_Scroll_To_Top::sanitize_hex( $field_name, $input );
 		if ( $sanitize === false ) {
-			add_settings_error( $field_name, "{$field_name}_invalid_hex_code", "Input value of {$field_name} is not a valid HEX code (for example: #FF0000)." );
 			return get_option( $field_name );
 		} else {
 			return $input;
@@ -504,16 +530,8 @@ class Lins_Scroll_To_Top {
 
 	function sanitize_bg_color( $input ) {
 		$field_name = 'lins_scroll_bg_color';
-		$sanitize   = false;
-		$input      = strtoupper( $input );
-		$rest       = substr( $input, 1, length: strlen( $input ) );
-		$hash_key   = substr( $input, 0, 1 );
-
-		if ( $hash_key === '#' && strlen( $input ) === 7 && ctype_xdigit( $rest ) ) {
-			$sanitize = true;
-		}
+		$sanitize   = Lins_Scroll_To_Top::sanitize_hex( $field_name, $input );
 		if ( $sanitize === false ) {
-			add_settings_error( $field_name, "{$field_name}_invalid_hex_code", "Input value of {$field_name} is not a valid HEX code (for example: #FF0000)." );
 			return get_option( $field_name );
 		} else {
 			return $input;
@@ -670,13 +688,21 @@ class Lins_Scroll_To_Top {
 	}
 
 	function admin_page() {
-		add_options_page( 'Scroll Top Settings', 'Scroll Top Settings', 'manage_options', 'lins-scroll-to-top-settings', array( $this, 'return_html' ) );
+		$scrollplugin_main_title = __( 'Scroll Top Settings', 'scrollplugin_main_title' );
+		add_options_page( $scrollplugin_main_title, $scrollplugin_main_title, 'manage_options', 'lins-scroll-to-top-settings', array( $this, 'return_html' ) );
 	}
 
 	function return_html() {
 		?>
+		<?php
+		$scrollplugin_settings_title = __( 'Scroll To Top Arrow Global Settings (by Fabian Lins)', 'scrollplugin_settings_title' );
+		?>
 		<div class="wrap">
-			<h1>Scroll To Top Arrow Global Settings (by Fabian Lins)</h1>
+			<h1>
+				<?php
+				echo esc_attr( $scrollplugin_settings_title );
+				?>
+			</h1>
 			<form action="options.php" method="POST">
 				<?php
 				settings_fields( 'lins_scroll_to_top_plugin' );
