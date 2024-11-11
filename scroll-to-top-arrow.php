@@ -12,7 +12,6 @@
 
 class Lins_Scroll_To_Top {
 	function __construct() {
-		require_once( 'inc/sanitizing.php' );
 
 		//Breakpoints
 		define( 'BP_LG', 992 );
