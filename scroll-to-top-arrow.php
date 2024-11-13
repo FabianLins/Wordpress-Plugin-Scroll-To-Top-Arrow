@@ -161,6 +161,63 @@ class Lins_Scroll_To_Top {
 			wp_add_inline_style( 'rt-customstyle', $custom_css );
 		}
 		add_action( 'wp_enqueue_scripts', 'rt_custom_enqueue' );
+
+		function create_the_custom_table() {
+			global $wpdb;
+			$charset_collate = $wpdb->get_charset_collate();
+
+			$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
+
+			$sql = "CREATE TABLE $table_name (
+						uuid VARCHAR(36) NOT NULL UNIQUE,
+						arrow_fill VARCHAR(6) NOT NULL,
+						arrow_opacity DOUBLE(255, 2) NOT NULL,
+						arrow_bg VARCHAR(6) NOT NULL,
+						arrow_opacity_hover DOUBLE(255, 2) NOT NULL,
+						arrow_bg_hover VARCHAR(6) NOT NULL,
+						arrow_bg_size INT NOT NULL,
+						arrow_bg_size_lg INT NOT NULL,
+						arrow_bg_size_md INT NOT NULL,
+						arrow_bg_size_sm INT NOT NULL,
+						arrow_size  INT NOT NULL,
+						arrow_margin INT NOT NULL,
+						arrow_margin_lg INT NOT NULL,
+						arrow_margin_md INT NOT NULL,
+						arrow_margin_sm INT NOT NULL,
+						arrow_translate INT NOT NULL,
+						arrow_shadow_height INT NOT NULL,
+						arrow_shadow_height_lg INT NOT NULL,	
+						arrow_shadow_height_md INT NOT NULL,	
+						arrow_shadow_height_sm INT NOT NULL,
+						arrow_shadow_color VARCHAR(6) NOT NULL,
+						arrow_shadow_opacity DOUBLE(255, 2) NOT NULL,
+						database_timestamp DATETIME NOT NULL,
+						settings_active BOOLEAN DEFAULT TRUE NOT NULL,
+						PRIMARY KEY  (uuid),
+						CHECK(arrow_opacity >= 0 AND arrow_opacity <= 1),
+						CHECK(arrow_opacity_hover >= 0 AND arrow_opacity_hover <= 1),
+						CHECK(arrow_bg_size >= 0),
+						CHECK(arrow_bg_size_lg >= 0),
+						CHECK(arrow_bg_size_md >= 0),
+						CHECK(arrow_bg_size_sm >= 0),
+						CHECK(arrow_size >= 0 AND arrow_size <= 100),
+						CHECK(arrow_margin >= 0),
+						CHECK(arrow_margin_lg >= 0),
+						CHECK(arrow_margin_md >= 0),
+						CHECK(arrow_margin_sm >= 0),
+						CHECK(arrow_translate >= 0),
+						CHECK(arrow_shadow_height >= 0),
+						CHECK(arrow_shadow_height_lg >= 0),
+						CHECK(arrow_shadow_height_md >= 0),
+						CHECK(arrow_shadow_height_sm >= 0),
+						CHECK(arrow_shadow_opacity >= 0 AND arrow_shadow_opacity <= 1)
+					) $charset_collate;";
+
+			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			dbDelta( $sql );
+		}
+
+		register_activation_hook( __FILE__, 'create_the_custom_table' );
 	}
 
 	function settings() {
@@ -271,6 +328,7 @@ class Lins_Scroll_To_Top {
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_opacity', array( 'sanitize_callback' => array( $this, 'sanitize_bg_opacity' ), 'default' => BG_OPACITY_DEF ) );
 	}
 
+	//n
 	// Sanitzing
 	function sanitize_min_max( $field_name, $input, $min, $max ) {
 		if ( ! is_numeric( $input ) ) {
@@ -725,6 +783,19 @@ class Lins_Scroll_To_Top {
 				echo esc_attr( $scrollplugin_settings_title );
 				?>
 			</h1>
+			<h3>Presets</h3>
+			<div>
+				<select name="" id="">
+					<option value="default">Default Preset</option>
+				</select>
+			</div>
+			<br>
+			<div>
+				<button id="submit" class="button button-primary">Load Preset</button>
+				<button id="submit" class="button button-secondary">Save Preset</button>
+				<button id="submit" class="button button-danger">Remove Preset</button>
+			</div>
+
 			<form action="options.php" method="POST">
 				<?php
 				settings_fields( 'lins_scroll_to_top_plugin' );
