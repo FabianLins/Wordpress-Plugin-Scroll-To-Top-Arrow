@@ -46,6 +46,23 @@ class Lins_Scroll_To_Top {
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'admin_init', array( $this, 'settings' ) );
 
+		add_action( 'admin_enqueue_scripts', 'add_admin_js' );
+		function add_admin_js() {
+			if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
+
+				$plugin_url = plugin_dir_url( __FILE__ );
+
+				wp_enqueue_script( 'add_admin_js',
+					$plugin_url . 'script/admin.js',
+					array(),
+					'1.0.0',
+					array(
+						'strategy' => 'defer',
+					)
+				);
+			}
+		}
+
 		function add_css() {
 			$plugin_url = plugin_dir_url( __FILE__ );
 			wp_enqueue_style( 'style', $plugin_url . 'style/style.min.css' );
@@ -792,7 +809,7 @@ class Lins_Scroll_To_Top {
 			<br>
 			<div>
 				<button id="submit" class="button button-primary">Load Preset</button>
-				<button id="submit" class="button button-secondary">Save Preset</button>
+				<button id="submit" class="button button-secondary" onclick="linsScrollTopSavePreset()">Save Preset</button>
 				<button id="submit" class="button button-danger">Remove Preset</button>
 			</div>
 
