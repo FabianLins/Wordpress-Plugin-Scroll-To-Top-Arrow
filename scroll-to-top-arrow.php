@@ -9,15 +9,15 @@
 */
 
 
-
 class Lins_Scroll_To_Top {
+
 	function __construct() {
+		include 'inc/uuid.inc.php';
 
 		//Breakpoints
 		define( 'BP_LG', 992 );
 		define( 'BP_MD', 768 );
 		define( 'BP_SM', 576 );
-
 
 		//Defaults
 		define( 'ARROW_FILL_DEF', '#F5F9F9' );
@@ -46,7 +46,43 @@ class Lins_Scroll_To_Top {
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'admin_init', array( $this, 'settings' ) );
 
-		add_action( 'admin_enqueue_scripts', 'add_admin_js' );
+		add_action( 'wp_ajax_save_preset', 'save_preset' );
+		add_action( 'wp_ajax_nopriv_save_preset', 'save_preset' );
+
+		function save_preset() {
+			global $wpdb;
+			$preset    = $_POST['ajax_data'];
+			$form_data = array(
+				'uuid'                   => UUID::v4(),
+				'arrow_fill'             => substr( strtoupper( $preset['scrollArrowFill'] ), 1 ),
+				'arrow_opacity'          => $preset['scrollArrowOpacity'],
+				'arrow_bg'               => substr( strtoupper( $preset['scrollArrowBg'] ), 1 ),
+				'arrow_opacity_hover'    => $preset['scrollArrowOpacityHover'],
+				'arrow_bg_hover'         => substr( strtoupper( $preset['scrollArrowBgHover'] ), 1 ),
+				'arrow_bg_size'          => $preset['scrollArrowBgSize'],
+				'arrow_bg_size_lg'       => $preset['scrollArrowBgSizeLg'],
+				'arrow_bg_size_md'       => $preset['scrollArrowBgSizeMd'],
+				'arrow_bg_size_sm'       => $preset['scrollArrowBgSizeSm'],
+				'arrow_size'             => $preset['scrollArrowSize'],
+				'arrow_margin'           => $preset['scrollArrowMargin'],
+				'arrow_margin_lg'        => $preset['scrollArrowMarginLg'],
+				'arrow_margin_md'        => $preset['scrollArrowMarginMd'],
+				'arrow_margin_sm'        => $preset['scrollArrowMarginSm'],
+				'arrow_translate'        => $preset['scrollArrowTranslate'],
+				'arrow_shadow_height'    => $preset['scrollBgHeight'],
+				'arrow_shadow_height_lg' => $preset['scrollBgHeightLg'],
+				'arrow_shadow_height_md' => $preset['scrollBgHeightMd'],
+				'arrow_shadow_height_sm' => $preset['scrollBgHeightSm'],
+				'arrow_shadow_color'     => substr( strtoupper( $preset['scrollBgColor'] ), 1 ),
+				'arrow_shadow_opacity'   => $preset['scrollBgOpacity'],
+				'database_timestamp'     => current_time( 'mysql' )
+			);
+			//var_dump( $preset );
+			$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$wpdb->insert( $table_name, $form_data );
+		}
+
+
 		function add_admin_js() {
 			if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
 
@@ -62,6 +98,8 @@ class Lins_Scroll_To_Top {
 				);
 			}
 		}
+
+		add_action( 'admin_enqueue_scripts', 'add_admin_js' );
 
 		function add_css() {
 			$plugin_url = plugin_dir_url( __FILE__ );
@@ -181,6 +219,7 @@ class Lins_Scroll_To_Top {
 
 		function create_the_custom_table() {
 			global $wpdb;
+
 			$charset_collate = $wpdb->get_charset_collate();
 
 			$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
@@ -345,7 +384,6 @@ class Lins_Scroll_To_Top {
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_opacity', array( 'sanitize_callback' => array( $this, 'sanitize_bg_opacity' ), 'default' => BG_OPACITY_DEF ) );
 	}
 
-	//n
 	// Sanitzing
 	function sanitize_min_max( $field_name, $input, $min, $max ) {
 		if ( ! is_numeric( $input ) ) {

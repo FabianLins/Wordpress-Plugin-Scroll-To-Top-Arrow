@@ -61,4 +61,41 @@ function linsScrollTopSavePreset() {
 
     const scrollBgOpacity = document.querySelector('[name="lins_scroll_bg_opacity"]');
     //console.log(scrollBgOpacity);
+
+    myPreset = {
+        scrollArrowFill: scrollArrowFill.value,
+        scrollArrowOpacity: scrollArrowOpacity.value,
+        scrollArrowBg: scrollArrowBg.value,
+        scrollArrowOpacityHover: scrollArrowOpacityHover.value,
+        scrollArrowBgHover: scrollArrowBgHover.value,
+        scrollArrowBgSize: scrollArrowBgSize.value,
+        scrollArrowBgSizeLg: scrollArrowBgSizeLg.value,
+        scrollArrowBgSizeMd: scrollArrowBgSizeMd.value,
+        scrollArrowBgSizeSm: scrollArrowBgSizeSm.value,
+        scrollArrowSize: scrollArrowSize.value,
+        scrollArrowMargin: scrollArrowMargin.value,
+        scrollArrowMarginLg: scrollArrowMarginLg.value,
+        scrollArrowMarginMd: scrollArrowMarginMd.value,
+        scrollArrowMarginSm: scrollArrowMarginSm.value,
+        scrollArrowTranslate: scrollArrowTranslate.value,
+        scrollBgHeight: scrollBgHeight.value,
+        scrollBgHeightLg: scrollBgHeightLg.value,
+        scrollBgHeightMd: scrollBgHeightMd.value,
+        scrollBgHeightSm: scrollBgHeightSm.value,
+        scrollBgColor: scrollBgColor.value,
+        scrollBgOpacity: scrollBgOpacity.value
+    }
+
+    jQuery.ajax({
+        type: 'post',
+        url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+        dataType: 'json',
+        data: {
+            action: "save_preset",
+            ajax_data: myPreset
+        },
+        complete: function (response) {
+            alert('Preset saved successfully');
+        }
+    });
 }
