@@ -49,37 +49,182 @@ class Lins_Scroll_To_Top {
 		add_action( 'wp_ajax_save_preset', 'save_preset' );
 		add_action( 'wp_ajax_nopriv_save_preset', 'save_preset' );
 
+		function sanitize_opacity_db( $input ) {
+			$input = floatval( $input );
+			if ( is_float( $input ) ) {
+				$input = round( $input, 2 );
+				$input = strtoupper( $input );
+				if ( $input >= 0 && $input <= 1 ) {
+					return $input;
+				}
+			}
+			return false;
+		}
+		function sanitize_hex_db( $input ) {
+			$input    = strtoupper( $input );
+			$rest     = substr( $input, 1, strlen( $input ) );
+			$hash_key = substr( $input, 0, 1 );
+
+			if ( $hash_key === '#' && strlen( $input ) === 7 && ctype_xdigit( $rest ) ) {
+				return substr( strtoupper( $input ), 1 );
+			}
+			return false;
+		}
+
 		function save_preset() {
 			global $wpdb;
-			$preset    = $_POST['ajax_data'];
-			$form_data = array(
-				'uuid'                   => UUID::v4(),
-				'arrow_fill'             => substr( strtoupper( $preset['scrollArrowFill'] ), 1 ),
-				'arrow_opacity'          => $preset['scrollArrowOpacity'],
-				'arrow_bg'               => substr( strtoupper( $preset['scrollArrowBg'] ), 1 ),
-				'arrow_opacity_hover'    => $preset['scrollArrowOpacityHover'],
-				'arrow_bg_hover'         => substr( strtoupper( $preset['scrollArrowBgHover'] ), 1 ),
-				'arrow_bg_size'          => $preset['scrollArrowBgSize'],
-				'arrow_bg_size_lg'       => $preset['scrollArrowBgSizeLg'],
-				'arrow_bg_size_md'       => $preset['scrollArrowBgSizeMd'],
-				'arrow_bg_size_sm'       => $preset['scrollArrowBgSizeSm'],
-				'arrow_size'             => $preset['scrollArrowSize'],
-				'arrow_margin'           => $preset['scrollArrowMargin'],
-				'arrow_margin_lg'        => $preset['scrollArrowMarginLg'],
-				'arrow_margin_md'        => $preset['scrollArrowMarginMd'],
-				'arrow_margin_sm'        => $preset['scrollArrowMarginSm'],
-				'arrow_translate'        => $preset['scrollArrowTranslate'],
-				'arrow_shadow_height'    => $preset['scrollBgHeight'],
-				'arrow_shadow_height_lg' => $preset['scrollBgHeightLg'],
-				'arrow_shadow_height_md' => $preset['scrollBgHeightMd'],
-				'arrow_shadow_height_sm' => $preset['scrollBgHeightSm'],
-				'arrow_shadow_color'     => substr( strtoupper( $preset['scrollBgColor'] ), 1 ),
-				'arrow_shadow_opacity'   => $preset['scrollBgOpacity'],
-				'database_timestamp'     => current_time( 'mysql' )
-			);
-			//var_dump( $preset );
+			$preset     = $_POST['ajax_data'];
 			$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
-			$wpdb->insert( $table_name, $form_data );
+
+			$existing_presets = $wpdb->get_results( "SELECT preset_name
+												FROM $table_name
+												WHERE settings_active=TRUE" );
+
+
+			//echo '<pre>';
+			//print_r( $existing_presets );
+			//echo '</pre>';
+
+			$errors = array();
+
+			$preset['presetName'] = sanitize_text_field( $preset['presetName'] );
+			$lower_case_preset    = strtolower( $preset['presetName'] );
+			foreach ( $existing_presets as $curr_preset ) {
+				$curr_lower_case_preset = strtolower( $curr_preset->preset_name );
+				if ( $curr_lower_case_preset === $lower_case_preset ) {
+					$errors[] = 'Preset Name already exists (Error 100)';
+				}
+			}
+			if ( ! $preset['presetName'] ) {
+				$errors[] = 'Preset Name is empty (Error 101)';
+			}
+
+			//if $preset['presetName'] exist (fetch active presets), give error and check if it is not an empty string
+			$preset['scrollArrowFill'] = sanitize_hex_db( $preset['scrollArrowFill'] );
+			if ( $preset['scrollArrowFill'] === false ) {
+				$errors[] = 'Hex Code Arrow Fill Wrong (Error 102)';
+			}
+
+			$preset['scrollArrowOpacity'] = sanitize_opacity_db( $preset['scrollArrowOpacity'] );
+			if ( $preset['scrollArrowOpacity'] === false ) {
+				$errors[] = 'Scroll Arrow Opacity Wrong (Error 103)';
+			}
+
+			$preset['scrollArrowBg'] = sanitize_hex_db( $preset['scrollArrowBg'] );
+			if ( $preset['scrollArrowBg'] === false ) {
+				$errors[] = 'Hex Code Arrow Background Wrong (Error 104)';
+			}
+
+			$preset['scrollArrowOpacityHover'] = sanitize_opacity_db( $preset['scrollArrowOpacityHover'] );
+			if ( $preset['scrollArrowOpacityHover'] === false ) {
+				$errors[] = 'Scroll Arrow Opacity Hover Wrong (Error 105)';
+			}
+
+			$preset['scrollArrowBgHover'] = sanitize_hex_db( $preset['scrollArrowBgHover'] );
+			if ( $preset['scrollArrowBgHover'] === false ) {
+				$errors[] = 'Hex Code Arrow Background Hover Wrong (Error 106)';
+
+			}
+
+			if ( ! is_int( (int) $preset['scrollArrowBgSize'] ) ) {
+				$errors[] = 'Arrow Background Size Wrong (Error 107)';
+			}
+
+			if ( ! is_int( (int) $preset['scrollArrowBgSizeLg'] ) ) {
+				$errors[] = 'Arrow Background Size LG Wrong (Error 108)';
+
+			}
+
+			if ( ! is_int( (int) $preset['scrollArrowBgSizeMd'] ) ) {
+				$errors[] = 'Arrow Background Size MD Wrong (Error 109)';
+			}
+
+			if ( ! is_int( (int) $preset['scrollArrowBgSizeSm'] ) ) {
+				$errors[] = 'Arrow Background Size SM Wrong (Error 110)';
+			}
+			if ( ! is_int( (int) $preset['scrollArrowSize'] ) || (int) $preset['scrollArrowSize'] > 100 ) {
+				$errors[] = 'Arrow Size Wrong (Error 111)';
+			}
+
+			if ( ! is_int( (int) $preset['scrollArrowMargin'] ) || $preset['scrollArrowMargin'] < 0 ) {
+				$errors[] = 'Arrow Margin Wrong (Error 112)';
+			}
+
+			if ( ! is_int( (int) $preset['scrollArrowMarginLg'] ) || $preset['scrollArrowMarginLg'] < 0 ) {
+				$errors[] = 'Arrow Margin LG Wrong (Error 113)';
+			}
+
+			if ( ! is_int( (int) $preset['scrollArrowMarginMd'] ) || $preset['scrollArrowMarginMd'] < 0 ) {
+				$errors[] = 'Arrow Margin MD Wrong (Error 114)';
+			}
+
+			if ( ! is_int( (int) $preset['scrollArrowMarginSm'] ) || $preset['scrollArrowMarginSm'] < 0 ) {
+				$errors[] = 'Arrow Margin SM Wrong (Error 115)';
+			}
+
+			if ( ! is_int( (int) $preset['scrollArrowTranslate'] ) || $preset['scrollArrowTranslate'] < 0 ) {
+				$errors[] = 'Arrow Translate Wrong (Error 116)';
+			}
+
+			if ( ! is_int( (int) $preset['scrollBgHeight'] ) || $preset['scrollBgHeight'] < 0 ) {
+				$errors[] = 'Background Height Wrong (Error 117)';
+			}
+
+			if ( ! is_int( (int) $preset['scrollBgHeightLg'] ) || $preset['scrollBgHeightLg'] < 0 ) {
+				$errors[] = 'Background Height LG Wrong (Error 118)';
+			}
+
+			if ( ! is_int( (int) $preset['scrollBgHeightMd'] ) || $preset['scrollBgHeightMd'] < 0 ) {
+				$errors[] = 'Background Height MD Wrong (Error 119)';
+			}
+
+			if ( ! is_int( (int) $preset['scrollBgHeightSm'] ) || $preset['scrollBgHeightSm'] < 0 ) {
+				$errors[] = 'Background Height SM Wrong (Error 120)';
+			}
+
+			$preset['scrollBgColor'] = sanitize_hex_db( $preset['scrollBgColor'] );
+			if ( $preset['scrollBgColor'] === false ) {
+				$errors[] = 'Hex Code Background Color';
+			}
+
+			$preset['scrollBgOpacity'] = sanitize_opacity_db( $preset['scrollBgOpacity'] );
+			if ( $preset['scrollBgOpacity'] === false ) {
+				$errors[] = 'Scroll Background Opacity';
+			}
+
+			if ( count( $errors ) > 0 ) {
+				echo json_encode( $errors );
+			} else {
+				$form_data = array(
+					'uuid'                   => UUID::v4(),
+					'preset_name'            => $preset['presetName'],
+					'arrow_fill'             => $preset['scrollArrowFill'],
+					'arrow_opacity'          => $preset['scrollArrowOpacity'],
+					'arrow_bg'               => $preset['scrollArrowBg'],
+					'arrow_opacity_hover'    => $preset['scrollArrowOpacityHover'],
+					'arrow_bg_hover'         => $preset['scrollArrowBgHover'],
+					'arrow_bg_size'          => $preset['scrollArrowBgSize'],
+					'arrow_bg_size_lg'       => $preset['scrollArrowBgSizeLg'],
+					'arrow_bg_size_md'       => $preset['scrollArrowBgSizeMd'],
+					'arrow_bg_size_sm'       => $preset['scrollArrowBgSizeSm'],
+					'arrow_size'             => $preset['scrollArrowSize'],
+					'arrow_margin'           => $preset['scrollArrowMargin'],
+					'arrow_margin_lg'        => $preset['scrollArrowMarginLg'],
+					'arrow_margin_md'        => $preset['scrollArrowMarginMd'],
+					'arrow_margin_sm'        => $preset['scrollArrowMarginSm'],
+					'arrow_translate'        => $preset['scrollArrowTranslate'],
+					'arrow_shadow_height'    => $preset['scrollBgHeight'],
+					'arrow_shadow_height_lg' => $preset['scrollBgHeightLg'],
+					'arrow_shadow_height_md' => $preset['scrollBgHeightMd'],
+					'arrow_shadow_height_sm' => $preset['scrollBgHeightSm'],
+					'arrow_shadow_color'     => $preset['scrollBgColor'],
+					'arrow_shadow_opacity'   => $preset['scrollBgOpacity'],
+					'database_timestamp'     => current_time( 'mysql' )
+				);
+				//var_dump( $preset );
+				$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
+				$wpdb->insert( $table_name, $form_data );
+			}
 		}
 
 
@@ -100,6 +245,35 @@ class Lins_Scroll_To_Top {
 		}
 
 		add_action( 'admin_enqueue_scripts', 'add_admin_js' );
+
+		function add_admin_js_modal() {
+			if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
+
+				$plugin_url = plugin_dir_url( __FILE__ );
+
+				wp_enqueue_script( 'add_admin_js_modal',
+					$plugin_url . 'script/modalbox.js',
+					array(),
+					'1.0.0',
+					array(
+						'strategy' => 'defer',
+					)
+				);
+			}
+		}
+
+		add_action( 'admin_enqueue_scripts', 'add_admin_js_modal' );
+
+		function add_admin_css() {
+			if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
+				$plugin_url = plugin_dir_url( __FILE__ );
+				wp_register_style( 'custom_wp_admin_css', $plugin_url . 'style/admin.min.css', false, '1.0.0' );
+				wp_enqueue_style( 'style', $plugin_url . 'style/admin.min.css' );
+			}
+		}
+
+		add_action( 'admin_enqueue_scripts', 'add_admin_css' );
+
 
 		function add_css() {
 			$plugin_url = plugin_dir_url( __FILE__ );
@@ -217,6 +391,7 @@ class Lins_Scroll_To_Top {
 		}
 		add_action( 'wp_enqueue_scripts', 'rt_custom_enqueue' );
 
+
 		function create_the_custom_table() {
 			global $wpdb;
 
@@ -226,6 +401,7 @@ class Lins_Scroll_To_Top {
 
 			$sql = "CREATE TABLE $table_name (
 						uuid VARCHAR(36) NOT NULL UNIQUE,
+						preset_name VARCHAR(255) NOT NULL,
 						arrow_fill VARCHAR(6) NOT NULL,
 						arrow_opacity DOUBLE(255, 2) NOT NULL,
 						arrow_bg VARCHAR(6) NOT NULL,
@@ -838,6 +1014,25 @@ class Lins_Scroll_To_Top {
 				echo esc_attr( $scrollplugin_settings_title );
 				?>
 			</h1>
+			<div class="name-modal">
+				<div class="modal-content">
+					<h2>Save Preset for Scroll To Top Arrow</h2>
+					<div class="form-combo">
+						<label for="lins-scroll-preset-name">Preset Name</label>
+						<input type="text" name="lins_scroll_preset_name" id="lins-scroll-preset-name">
+						<button class="button button-primary" onclick="linsScrollTopSavePreset()">Save Preset</button>
+						<div class="button button-secondary js-close-modal-btn" tabindex="0"
+							onclick="linsScrollTopCloseModal()">
+							Cancel</div>
+					</div>
+				</div>
+				<div class="modal-bg" onclick="linsScrollTopCloseModal()">
+				</div>
+			</div>
+			<div class="alert-boxes">
+
+			</div>
+
 			<h3>Presets</h3>
 			<div>
 				<select name="" id="">
@@ -847,8 +1042,8 @@ class Lins_Scroll_To_Top {
 			<br>
 			<div>
 				<button id="submit" class="button button-primary">Load Preset</button>
-				<button id="submit" class="button button-secondary" onclick="linsScrollTopSavePreset()">Save Preset</button>
-				<button id="submit" class="button button-danger">Remove Preset</button>
+				<button class="button button-secondary">Edit Preset</button>
+				<button class="button button-danger">Remove Preset</button>
 			</div>
 
 			<form action="options.php" method="POST">
@@ -856,8 +1051,12 @@ class Lins_Scroll_To_Top {
 				settings_fields( 'lins_scroll_to_top_plugin' );
 				do_settings_sections( 'lins-scroll-to-top-settings' );
 				submit_button();
+
 				?>
+				<div class="button button-secondary" onclick="linsScrollTopShowModal()">Save As Preset</div>
+
 			</form>
+
 		</div>
 		<?php
 	}
