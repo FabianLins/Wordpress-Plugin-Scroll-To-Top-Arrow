@@ -474,6 +474,37 @@ class Lins_Scroll_To_Top {
 
 			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
 			dbDelta( $sql );
+
+			$form_data = array(
+				'uuid'                   => '00000000-0000-0000-0000-000000000000',
+				'preset_name'            => 'Default Preset',
+				'arrow_fill'             => ltrim( ARROW_FILL_DEF, '#' ),
+				'arrow_opacity'          => ARROW_OPACITY_DEF,
+				'arrow_bg'               => ltrim( ARROW_COLOR_DEF, '#' ),
+				'arrow_opacity_hover'    => ARROW_OPACITY_HOVER_DEF,
+				'arrow_bg_hover'         => ltrim( ARROW_COLOR_HOVER_DEF, '#' ),
+				'arrow_bg_size'          => BG_SIZE_DEF,
+				'arrow_bg_size_lg'       => BG_SIZE_LG_DEF,
+				'arrow_bg_size_md'       => BG_SIZE_MD_DEF,
+				'arrow_bg_size_sm'       => BG_SIZE_SM_DEF,
+				'arrow_size'             => ARROW_SIZE_DEF,
+				'arrow_margin'           => ARROW_MARGIN_DEF,
+				'arrow_margin_lg'        => ARROW_MARGIN_LG_DEF,
+				'arrow_margin_md'        => ARROW_MARGIN_MD_DEF,
+				'arrow_margin_sm'        => ARROW_MARGIN_SM_DEF,
+				'arrow_translate'        => ARROW_TRANSLATE_DEF,
+				'arrow_shadow_height'    => BG_HEIGHT_DEF,
+				'arrow_shadow_height_lg' => BG_HEIGHT_LG_DEF,
+				'arrow_shadow_height_md' => BG_HEIGHT_MD_DEF,
+				'arrow_shadow_height_sm' => BG_HEIGHT_SM_DEF,
+				'arrow_shadow_color'     => ltrim( BG_COLOR_DEF, '#' ),
+				'arrow_shadow_opacity'   => BG_OPACITY_DEF,
+				'database_timestamp'     => current_time( 'mysql' )
+			);
+
+			//var_dump( $preset );
+			$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$wpdb->insert( $table_name, $form_data );
 		}
 
 		register_activation_hook( __FILE__, 'create_the_custom_table' );
@@ -1069,7 +1100,6 @@ class Lins_Scroll_To_Top {
 			<h3>Presets</h3>
 			<div>
 				<select name="select_preset" id="select-preset">
-					<option value="default">Default Preset</option>
 					<?php
 					foreach ( $results as $curr_preset ) {
 						$value = $curr_preset->uuid;
