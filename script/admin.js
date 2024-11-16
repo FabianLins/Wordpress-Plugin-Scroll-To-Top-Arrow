@@ -1,3 +1,13 @@
+function linsPresetApply() {
+    const saveChangesSpans = document.querySelectorAll('.js-save-changes-to-page');
+    saveChangesSpans.forEach(currSave => {
+        currSave.addEventListener('click', () => {
+            alert('');
+            document.querySelector('#submit').click();
+        });
+    });
+}
+
 function linsScrollTopSavePreset() {
 
     const presetName = document.querySelector('[name="lins_scroll_preset_name"]');
@@ -100,7 +110,7 @@ function linsScrollTopSavePreset() {
             ajax_data: myPreset
         },
         complete: function (errors) {
-            if (errors.responseText) {
+            if (!errors.responseText) {
                 //console.log(errors);
                 errors.responseText = JSON.parse(errors.responseText);
                 const errorAlerts = (Object.values(errors.responseText));
@@ -132,13 +142,13 @@ function linsScrollTopSavePreset() {
                     currAlert.classList.add('js-hide-alert');
                 });
                 document.querySelector('.alert-boxes').innerHTML += `<div id="setting-error-settings_updated" class="notice notice-success settings-error lins-scroll-arrow-alert">
-                <p>
-                    <strong>
-                        Preset saved successfully! Do you want to  apply the settings to the page? Click "Save Changes" at the bottom!
-                    </strong>
-                </p>
-            </div>`;
-
+                                                                        <p>
+                                                                            <strong>
+                                                                                Preset saved successfully! To aply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
+                                                                            </strong>
+                                                                        </p>
+                                                                    </div>`;
+                linsPresetApply();
             }
             linsScrollTopCloseModal();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -201,13 +211,13 @@ function linsScrollLoadPreset() {
                 });
                 document.querySelector('.alert-boxes').innerHTML +=
                     `<div id="setting-error-settings_updated" class="notice notice-success settings-success lins-scroll-arrow-alert">
-                <p>
-                    <strong>
-                        Preset loaded successfully. To aply the preset, click on "Save Changes" at the bottom of the page.
-                    </strong>
-                </p>
-            </div>`;
-
+                        <p>
+                            <strong>
+                                Preset loaded successfully. To aply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
+                            </strong>
+                        </p>
+                    </div>`;
+                linsPresetApply();
             } catch (error) {
                 console.error(error);
                 const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');

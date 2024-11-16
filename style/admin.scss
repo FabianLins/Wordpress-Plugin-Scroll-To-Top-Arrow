@@ -104,3 +104,16 @@ $black: hsl(270, 7%, 5%);
 .js-hide-alert {
     display: none;
 }
+
+.link-look {
+    color: #2271b1;
+    transition-property: border, background, color;
+    transition-duration: .05s;
+    transition-timing-function: ease-in-out;
+    font-weight: bold;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
