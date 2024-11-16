@@ -515,7 +515,7 @@ class Lins_Scroll_To_Top {
 				'arrow_shadow_height_sm' => BG_HEIGHT_SM_DEF,
 				'arrow_shadow_color'     => ltrim( BG_COLOR_DEF, '#' ),
 				'arrow_shadow_opacity'   => BG_OPACITY_DEF,
-				'database_timestamp'     => current_time( 'mysql' )
+				'database_timestamp'     => '2000-01-01 00:00:00.000'
 			);
 
 			//var_dump( $preset );
