@@ -90,3 +90,13 @@ $black: hsl(270, 7%, 5%);
 .button {
     text-align: center;
 }
+
+.current-preset {
+    h2 {
+        font-weight: normal;
+
+        .preset-name {
+            font-weight: bold;
+        }
+    }
+}

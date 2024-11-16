@@ -57,7 +57,7 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-document.addEventListener('keydown', function (event) {
+document.addEventListener('keydown', (event) => {
     if (modalActive && event.key === 'Tab') {
         console.log(firstFocusableElement);
         console.log(lastFocusableElement);
@@ -84,4 +84,11 @@ closeBtn.addEventListener('keydown', (event) => {
         linsScrollTopCloseModal();
     }
     // specify the action to take when the div is clicked
+});
+
+document.querySelector('#lins-scroll-preset-name').addEventListener('keydown', (event) => {
+    console.log(this);
+    if (event.key === 'Enter') {
+        linsScrollTopSavePreset();
+    }
 });

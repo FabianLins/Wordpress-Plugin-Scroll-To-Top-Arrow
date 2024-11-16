@@ -49,6 +49,10 @@ class Lins_Scroll_To_Top {
 		add_action( 'wp_ajax_save_preset', 'save_preset' );
 		add_action( 'wp_ajax_nopriv_save_preset', 'save_preset' );
 
+		add_action( 'wp_ajax_load_preset', 'load_preset' );
+		add_action( 'wp_ajax_nopriv_load_preset', 'load_preset' );
+
+
 		function sanitize_opacity_db( $input ) {
 			$input = floatval( $input );
 			if ( is_float( $input ) ) {
@@ -71,15 +75,37 @@ class Lins_Scroll_To_Top {
 			return false;
 		}
 
+		function load_preset() {
+			global $wpdb;
+			$preset         = $_POST['ajax_data'];
+			$table_name     = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$safe_sql       = $wpdb->prepare( "SELECT *
+												FROM $table_name
+												WHERE settings_active = %d AND uuid = %s", array( true, $preset['uuid'] ) );
+			$loaded_presets = $wpdb->get_results( $safe_sql );
+
+			//echo '<pre>';
+			//print_r( $existing_presets );
+			//echo '</pre>';
+
+			$errors = array();
+
+			if ( ! $loaded_presets ) {
+				$errors[] = 'Preset not found (Error 200)';
+			} else {
+				echo json_encode( $loaded_presets[0] );
+				exit();
+			}
+		}
+
 		function save_preset() {
 			global $wpdb;
-			$preset     = $_POST['ajax_data'];
-			$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
-
-			$existing_presets = $wpdb->get_results( "SELECT preset_name
+			$preset           = $_POST['ajax_data'];
+			$table_name       = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$safe_sql         = $wpdb->prepare( "SELECT preset_name
 												FROM $table_name
-												WHERE settings_active=TRUE" );
-
+												WHERE settings_active = %d", true );
+			$existing_presets = $wpdb->get_results( $safe_sql );
 
 			//echo '<pre>';
 			//print_r( $existing_presets );
@@ -194,6 +220,7 @@ class Lins_Scroll_To_Top {
 
 			if ( count( $errors ) > 0 ) {
 				echo json_encode( $errors );
+				exit();
 			} else {
 				$form_data = array(
 					'uuid'                   => UUID::v4(),
@@ -1007,6 +1034,12 @@ class Lins_Scroll_To_Top {
 		?>
 		<?php
 		$scrollplugin_settings_title = __( 'Scroll To Top Arrow Global Settings (by Fabian Lins)', 'scrollplugin_settings_title' );
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
+		//$sql        = "SELECT uuid, preset_name FROM $table_name WHERE settings_active = true ORDER BY database_timestamp ASC";
+		$query   = $wpdb->prepare( "SELECT uuid, preset_name FROM $table_name WHERE settings_active = %d ORDER BY database_timestamp ASC", true );
+		$results = $wpdb->get_results( $query );
+
 		?>
 		<div class="wrap">
 			<h1>
@@ -1035,17 +1068,26 @@ class Lins_Scroll_To_Top {
 
 			<h3>Presets</h3>
 			<div>
-				<select name="" id="">
+				<select name="select_preset" id="select-preset">
 					<option value="default">Default Preset</option>
+					<?php
+					foreach ( $results as $curr_preset ) {
+						$value = $curr_preset->uuid;
+						$name  = $curr_preset->preset_name;
+						echo ( "<option value='{$value}'>{$name}</option>" );
+					}
+					?>
 				</select>
 			</div>
 			<br>
 			<div>
-				<button id="submit" class="button button-primary">Load Preset</button>
-				<button class="button button-secondary">Edit Preset</button>
+				<button class="button button-primary load-preset-btn" onclick="linsScrollLoadPreset()">Load Preset</button>
+				<button class="button button-secondary" style="display:none;">Edit Preset</button>
 				<button class="button button-danger">Remove Preset</button>
 			</div>
-
+			<div class="current-preset">
+				<h2>Loaded preset: <span class="preset-name">No preset selected</span></h2>
+			</div>
 			<form action="options.php" method="POST">
 				<?php
 				settings_fields( 'lins_scroll_to_top_plugin' );
