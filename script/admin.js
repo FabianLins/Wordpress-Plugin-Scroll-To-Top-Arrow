@@ -1,7 +1,8 @@
+
 function linsScrollTopSavePreset() {
 
     const presetName = document.querySelector('[name="lins_scroll_preset_name"]');
-    console.log(presetName);
+    //console.log(presetName);
 
     const scrollArrowFill = document.querySelector('[name="lins_scroll_arrow_fill"]');
     //console.log(scrollArrowFill);
@@ -89,7 +90,7 @@ function linsScrollTopSavePreset() {
         scrollBgHeightSm: scrollBgHeightSm.value,
         scrollBgColor: scrollBgColor.value,
         scrollBgOpacity: scrollBgOpacity.value
-    }
+    };
 
     jQuery.ajax({
         type: 'post',
@@ -100,17 +101,10 @@ function linsScrollTopSavePreset() {
             ajax_data: myPreset
         },
         complete: function (errors) {
-            if (errors.responseText != 0) {
+            if (errors.responseText) {
                 //console.log(errors);
-                let fixedResponseText;
-                if (errors.responseText.substr(errors.responseText.length - 1, errors.responseText.length) == '0') {
-                    fixedResponseText = (errors.responseText).substr(0, errors.responseText.length - 1);
-                }
-                else {
-                    fixedResponseText = errors.responseText;
-                }
-                fixedResponseText = JSON.parse(fixedResponseText);
-                const errorAlerts = (Object.values(fixedResponseText));
+                errors.responseText = JSON.parse(errors.responseText);
+                const errorAlerts = (Object.values(errors.responseText));
                 let errorAlertsSpaces = '';
                 for (let i = 0; i < errorAlerts.length; i++) {
                     if (i !== errorAlerts.length - 1) {
@@ -141,6 +135,69 @@ function linsScrollTopSavePreset() {
             }
             linsScrollTopCloseModal();
             window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    });
+}
+function linsScrollLoadPreset() {
+    const selectElem = document.querySelector('#select-preset');
+    const uuid = selectElem.value;
+    //console.log(uuid);
+    //console.log(presetName);
+
+    uuidJson = {
+        uuid: uuid
+    };
+
+    jQuery.ajax({
+        type: 'post',
+        url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+        dataType: 'json',
+        data: {
+            action: 'load_preset',
+            ajax_data: uuidJson
+        },
+        complete: function (presetSettings) {
+            //console.log(presetSettings.responseText);
+            const presetObject = JSON.parse(presetSettings.responseText);
+            try {
+                document.querySelector('.preset-name').innerHTML = presetObject.preset_name;
+                //console.log(presetObject);
+                //document.querySelector('.preset-name').innerHTML = presetSettings.responseText;
+                //document.querySelector('[name="lins_scroll_arrow_fill"]').value = '#FFFFFF';
+                jQuery('[name="lins_scroll_arrow_fill"]').iris('color', `#${presetObject.arrow_fill}`);
+                document.querySelector('[name="lins_scroll_arrow_opacity"]').value = presetObject.arrow_opacity;
+                console.log(presetObject.arrow_opacity);
+                jQuery('[name="lins_scroll_arrow_color"]').iris('color', `#${presetObject.arrow_bg}`);
+                document.querySelector('[name="lins_scroll_arrow_opacity_hover"]').value = presetObject.arrow_opacity_hover;
+                jQuery('[name="lins_scroll_arrow_color_hover"]').iris('color', `#${presetObject.arrow_bg_hover}`);
+                document.querySelector('[name="lins_scroll_bg_size"]').value = presetObject.arrow_bg_size;
+                document.querySelector('[name="lins_scroll_bg_size_lg"]').value = (presetObject.arrow_bg_size_lg);
+                document.querySelector('[name="lins_scroll_bg_size_md"]').value = (presetObject.arrow_bg_size_md);
+                document.querySelector('[name="lins_scroll_bg_size_sm"]').value = (presetObject.arrow_bg_size_sm);
+                document.querySelector('[name="lins_scroll_arrow_size"]').value = (presetObject.arrow_size);
+                document.querySelector('[name="lins_scroll_arrow_margin"]').value = (presetObject.arrow_margin);
+                document.querySelector('[name="lins_scroll_arrow_margin_lg"]').value = (presetObject.arrow_margin_lg);
+                document.querySelector('[name="lins_scroll_arrow_margin_md"]').value = (presetObject.arrow_margin_md);
+                document.querySelector('[name="lins_scroll_arrow_margin_sm"]').value = (presetObject.arrow_margin_sm);
+                document.querySelector('[name="lins_scroll_arrow_translate"]').value = (presetObject.arrow_translate);
+                document.querySelector('[name="lins_scroll_bg_height"]').value = (presetObject.arrow_shadow_height);
+                document.querySelector('[name="lins_scroll_bg_height_lg"]').value = (presetObject.arrow_shadow_height_lg);
+                document.querySelector('[name="lins_scroll_bg_height_md"]').value = (presetObject.arrow_shadow_height_md);
+                document.querySelector('[name="lins_scroll_bg_height_sm"]').value = (presetObject.arrow_shadow_height_sm);
+                jQuery('[name="lins_scroll_bg_color"]').iris('color', `#${presetObject.arrow_shadow_color}`);
+                document.querySelector('[name="lins_scroll_bg_opacity"]').value = (presetObject.arrow_shadow_opacity);
+            } catch (error) {
+                console.error(error);
+                document.querySelector('.alert-boxes').innerHTML +=
+                    `<div id="setting-error-settings_updated" class="notice notice-error settings-error is-dismissible">
+                    <p>
+                        <strong>
+                            Preset could not be loaded! (Error 300)
+                            ${error}
+                        </strong>
+                    </p>
+                </div>`;
+            }
         }
     });
 }
