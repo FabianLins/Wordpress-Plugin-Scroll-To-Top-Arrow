@@ -1,4 +1,3 @@
-
 function linsScrollTopSavePreset() {
 
     const presetName = document.querySelector('[name="lins_scroll_preset_name"]');
@@ -114,8 +113,12 @@ function linsScrollTopSavePreset() {
                         errorAlertsSpaces += errorAlerts[i];
                     }
                 }
+                const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');
+                alerts.forEach(currAlert => {
+                    currAlert.classList.add('js-hide-alert');
+                });
                 document.querySelector('.alert-boxes').innerHTML +=
-                    `<div id="setting-error-settings_updated" class="notice notice-error settings-error is-dismissible">
+                    `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
                         <p>
                             <strong>
                                 ${errorAlertsSpaces}
@@ -124,7 +127,11 @@ function linsScrollTopSavePreset() {
                     </div>`;
             }
             else {
-                document.querySelector('.alert-boxes').innerHTML += `<div id="setting-error-settings_updated" class="notice notice-success settings-error is-dismissible">
+                const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');
+                alerts.forEach(currAlert => {
+                    currAlert.classList.add('js-hide-alert');
+                });
+                document.querySelector('.alert-boxes').innerHTML += `<div id="setting-error-settings_updated" class="notice notice-success settings-error lins-scroll-arrow-alert">
                 <p>
                     <strong>
                         Preset saved successfully! Do you want to  apply the settings to the page? Click "Save Changes" at the bottom!
@@ -138,6 +145,7 @@ function linsScrollTopSavePreset() {
         }
     });
 }
+
 function linsScrollLoadPreset() {
     const selectElem = document.querySelector('#select-preset');
     const uuid = selectElem.value;
@@ -166,7 +174,7 @@ function linsScrollLoadPreset() {
                 //document.querySelector('[name="lins_scroll_arrow_fill"]').value = '#FFFFFF';
                 jQuery('[name="lins_scroll_arrow_fill"]').iris('color', `#${presetObject.arrow_fill}`);
                 document.querySelector('[name="lins_scroll_arrow_opacity"]').value = presetObject.arrow_opacity;
-                console.log(presetObject.arrow_opacity);
+                //console.log(presetObject.arrow_opacity);
                 jQuery('[name="lins_scroll_arrow_color"]').iris('color', `#${presetObject.arrow_bg}`);
                 document.querySelector('[name="lins_scroll_arrow_opacity_hover"]').value = presetObject.arrow_opacity_hover;
                 jQuery('[name="lins_scroll_arrow_color_hover"]').iris('color', `#${presetObject.arrow_bg_hover}`);
@@ -186,10 +194,28 @@ function linsScrollLoadPreset() {
                 document.querySelector('[name="lins_scroll_bg_height_sm"]').value = (presetObject.arrow_shadow_height_sm);
                 jQuery('[name="lins_scroll_bg_color"]').iris('color', `#${presetObject.arrow_shadow_color}`);
                 document.querySelector('[name="lins_scroll_bg_opacity"]').value = (presetObject.arrow_shadow_opacity);
+
+                const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');
+                alerts.forEach(currAlert => {
+                    currAlert.classList.add('js-hide-alert');
+                });
+                document.querySelector('.alert-boxes').innerHTML +=
+                    `<div id="setting-error-settings_updated" class="notice notice-success settings-success lins-scroll-arrow-alert">
+                <p>
+                    <strong>
+                        Preset loaded successfully. To aply the preset, click on "Save Changes" at the bottom of the page.
+                    </strong>
+                </p>
+            </div>`;
+
             } catch (error) {
                 console.error(error);
+                const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');
+                alerts.forEach(currAlert => {
+                    currAlert.classList.add('js-hide-alert');
+                });
                 document.querySelector('.alert-boxes').innerHTML +=
-                    `<div id="setting-error-settings_updated" class="notice notice-error settings-error is-dismissible">
+                    `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
                     <p>
                         <strong>
                             Preset could not be loaded! (Error 300)
