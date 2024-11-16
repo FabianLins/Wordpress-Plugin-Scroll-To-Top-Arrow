@@ -42,7 +42,6 @@ class Lins_Scroll_To_Top {
 		define( 'BG_COLOR_DEF', '#0D0C0E' );
 		define( 'BG_OPACITY_DEF', 0.3 );
 
-
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'admin_init', array( $this, 'settings' ) );
 
@@ -51,6 +50,9 @@ class Lins_Scroll_To_Top {
 
 		add_action( 'wp_ajax_load_preset', 'load_preset' );
 		add_action( 'wp_ajax_nopriv_load_preset', 'load_preset' );
+
+		add_action( 'wp_ajax_reload_preset_select', 'reload_preset_select' );
+		add_action( 'wp_ajax_nopriv_reload_preset_select', 'reload_preset_select' );
 
 
 		function sanitize_opacity_db( $input ) {
@@ -75,36 +77,41 @@ class Lins_Scroll_To_Top {
 			return false;
 		}
 
+		function reload_preset_select() {
+			global $wpdb;
+			$table_name  = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$safe_sql    = $wpdb->prepare( "SELECT `uuid`, `preset_name`
+												FROM `$table_name`
+												WHERE `settings_active` = %d ORDER BY `database_timestamp` ASC", array( true ) );
+			$all_presets = $wpdb->get_results( $safe_sql );
+			if ( $all_presets ) {
+				echo json_encode( $all_presets );
+			}
+			exit();
+		}
+
 		function load_preset() {
 			global $wpdb;
 			$preset         = $_POST['ajax_data'];
 			$table_name     = $wpdb->prefix . 'lins_scroll_arrow_presets';
 			$safe_sql       = $wpdb->prepare( "SELECT *
-												FROM $table_name
-												WHERE settings_active = %d AND uuid = %s", array( true, $preset['uuid'] ) );
+												FROM `$table_name`
+												WHERE `settings_active` = %d AND uuid = %s", array( true, $preset['uuid'] ) );
 			$loaded_presets = $wpdb->get_results( $safe_sql );
 
-			//echo '<pre>';
-			//print_r( $existing_presets );
-			//echo '</pre>';
-
-			$errors = array();
-
-			if ( ! $loaded_presets ) {
-				$errors[] = 'Preset not found (Error 200)';
-			} else {
+			if ( $loaded_presets ) {
 				echo json_encode( $loaded_presets[0] );
-				exit();
 			}
+			exit();
 		}
 
 		function save_preset() {
 			global $wpdb;
 			$preset           = $_POST['ajax_data'];
 			$table_name       = $wpdb->prefix . 'lins_scroll_arrow_presets';
-			$safe_sql         = $wpdb->prepare( "SELECT preset_name
-												FROM $table_name
-												WHERE settings_active = %d", true );
+			$safe_sql         = $wpdb->prepare( "SELECT `preset_name`
+												FROM `$table_name`
+												WHERE `settings_active` = %d", true );
 			$existing_presets = $wpdb->get_results( $safe_sql );
 
 			//echo '<pre>';
@@ -210,18 +217,27 @@ class Lins_Scroll_To_Top {
 
 			$preset['scrollBgColor'] = sanitize_hex_db( $preset['scrollBgColor'] );
 			if ( $preset['scrollBgColor'] === false ) {
-				$errors[] = 'Hex Code Background Color';
+				$errors[] = 'Hex Code Background Color (Error 121)';
 			}
 
 			$preset['scrollBgOpacity'] = sanitize_opacity_db( $preset['scrollBgOpacity'] );
 			if ( $preset['scrollBgOpacity'] === false ) {
-				$errors[] = 'Scroll Background Opacity';
+				$errors[] = 'Scroll Background Opacity (Error 122)';
 			}
 
 			if ( count( $errors ) > 0 ) {
 				echo json_encode( $errors );
 				exit();
 			} else {
+				$uuid    = UUID::v4();
+				$query   = $wpdb->prepare( "SELECT `uuid` FROM `$table_name` WHERE `uuid` = %s", $uuid );
+				$results = $wpdb->get_results( $query );
+				while ( $results ) {
+					$uuid    = UUID::v4();
+					$query   = $wpdb->prepare( "SELECT `uuid` FROM `$table_name` WHERE `uuid` = %s", $uuid );
+					$results = $wpdb->get_results( $query );
+				}
+
 				$form_data = array(
 					'uuid'                   => UUID::v4(),
 					'preset_name'            => $preset['presetName'],
@@ -1068,7 +1084,7 @@ class Lins_Scroll_To_Top {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
 		//$sql        = "SELECT uuid, preset_name FROM $table_name WHERE settings_active = true ORDER BY database_timestamp ASC";
-		$query   = $wpdb->prepare( "SELECT uuid, preset_name FROM $table_name WHERE settings_active = %d ORDER BY database_timestamp ASC", true );
+		$query   = $wpdb->prepare( "SELECT `uuid`, `preset_name` FROM `$table_name` WHERE `settings_active` = %d ORDER BY `database_timestamp` ASC", true );
 		$results = $wpdb->get_results( $query );
 
 		?>

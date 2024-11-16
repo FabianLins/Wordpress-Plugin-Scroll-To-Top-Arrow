@@ -2,7 +2,6 @@ function linsPresetApply() {
     const saveChangesSpans = document.querySelectorAll('.js-save-changes-to-page');
     saveChangesSpans.forEach(currSave => {
         currSave.addEventListener('click', () => {
-            alert('');
             document.querySelector('#submit').click();
         });
     });
@@ -131,7 +130,7 @@ function linsScrollTopSavePreset() {
                     `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
                         <p>
                             <strong>
-                                ${errorAlertsSpaces}
+                                The field(s): ${errorAlertsSpaces} contain(s) errors. Preset couldn't be saved.
                             </strong>
                         </p>
                     </div>`;
@@ -149,6 +148,38 @@ function linsScrollTopSavePreset() {
                                                                         </p>
                                                                     </div>`;
                 linsPresetApply();
+                jQuery.ajax({
+                    type: 'post',
+                    url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+                    dataType: 'json',
+                    data: {
+                        action: 'reload_preset_select'
+                    },
+                    complete: function (errors) {
+                        if (errors.responseText) {
+                            errors.responseText = JSON.parse(errors.responseText);
+                            //const errorAlerts = (Object.values(errors.responseText));
+                            //console.log(errors.responseText);
+                            document.querySelector('#select-preset').innerHTML = '';
+                            errors.responseText.forEach(currPreset => {
+                                //console.log(currPreset);
+                                const value = currPreset.uuid;
+                                const name = currPreset.preset_name;
+                                document.querySelector('#select-preset').innerHTML += `<option value="${value}">${name}</option>`;
+                            });
+                        }
+                        else {
+                            document.querySelector('.alert-boxes').innerHTML +=
+                                `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
+                                    <p>
+                                        <strong>
+                                            The presets could not be reloaded after saving a new one. (Error 123)
+                                        </strong>
+                                    </p>
+                                </div>`;
+                        }
+                    }
+                });
             }
             linsScrollTopCloseModal();
             window.scrollTo({ top: 0, behavior: 'smooth' });
