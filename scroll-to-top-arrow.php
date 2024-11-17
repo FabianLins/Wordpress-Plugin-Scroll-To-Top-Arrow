@@ -1185,8 +1185,7 @@ class Lins_Scroll_To_Top {
 					style="display:none;">Remove Preset</button>
 			</div>
 			<div class="current-preset">
-				<h2>Loaded preset: <span class="preset-name">No preset selected</span></h2>
-			</div>
+				<h2>Loaded preset: <span class="preset-name">No preset selected</span></h2>			</div>
 			<form action="options.php" method="POST">
 				<?php
 				settings_fields( 'lins_scroll_to_top_plugin' );
