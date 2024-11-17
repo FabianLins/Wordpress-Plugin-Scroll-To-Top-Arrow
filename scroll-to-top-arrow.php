@@ -45,6 +45,9 @@ class Lins_Scroll_To_Top {
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'admin_init', array( $this, 'settings' ) );
 
+		add_action( 'wp_ajax_remove_preset', 'remove_preset' );
+		add_action( 'wp_ajax_nopriv_remove_preset', 'remove_preset' );
+
 		add_action( 'wp_ajax_save_preset', 'save_preset' );
 		add_action( 'wp_ajax_nopriv_save_preset', 'save_preset' );
 
@@ -103,6 +106,19 @@ class Lins_Scroll_To_Top {
 			}
 			exit();
 		}
+
+		function remove_preset() {
+			global $wpdb;
+			$preset           = $_POST['ajax_data'];
+			$table_name       = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$safe_sql         = $wpdb->prepare( "UPDATE `$table_name`
+												SET `settings_active` = %d
+												WHERE `uuid` = %s", array( false, $preset['uuid'] ) );
+			$existing_presets = $wpdb->query( $safe_sql );
+			var_dump( $existing_presets );
+			exit();
+		}
+
 
 		function save_preset() {
 			global $wpdb;
@@ -1100,15 +1116,15 @@ class Lins_Scroll_To_Top {
 					<div class="form-combo">
 						<div class="button-container">
 							<p class="current-preset-modal">Current Preset: <span></span></p>
-							<p>Do you want to form to remove the preset?</p>
-							<button class="button button-danger" onclick="linsScrollRemovePreset()">Confirm Removal</button>
-							<div class="button button-secondary js-close-modal-btn" tabindex="0"
-								onclick="linsScrollTopCloseModal()">
+							<p>Do you really want remove the preset?</p>
+							<button class="button button-danger" onclick="linsScrollRemoveConfirm()">Confirm Removal</button>
+							<div class="button button-secondary js-close-modal-btn-confirm" tabindex="0"
+								onclick="linsScrollTopRemoveConfirmCloseModal()">
 								Cancel</div>
 						</div>
 					</div>
 				</div>
-				<div class="modal-bg" onclick="linsScrollTopCloseModal()">
+				<div class="modal-bg" onclick="linsScrollTopRemoveConfirmCloseModal()">
 				</div>
 			</div>
 
@@ -1185,7 +1201,7 @@ class Lins_Scroll_To_Top {
 					style="display:none;">Remove Preset</button>
 			</div>
 			<div class="current-preset">
-				<h2>Loaded preset: <span class="preset-name">No preset selected</span></h2>
+				<h2>Loaded preset: <span class="preset-name">No preset selected.</span></h2>
 			</div>
 			<form action="options.php" method="POST">
 				<?php
