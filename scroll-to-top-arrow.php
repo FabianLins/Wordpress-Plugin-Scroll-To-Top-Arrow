@@ -54,7 +54,6 @@ class Lins_Scroll_To_Top {
 		add_action( 'wp_ajax_reload_preset_select', 'reload_preset_select' );
 		add_action( 'wp_ajax_nopriv_reload_preset_select', 'reload_preset_select' );
 
-
 		function sanitize_opacity_db( $input ) {
 			$input = floatval( $input );
 			if ( is_float( $input ) ) {
@@ -96,7 +95,7 @@ class Lins_Scroll_To_Top {
 			$table_name     = $wpdb->prefix . 'lins_scroll_arrow_presets';
 			$safe_sql       = $wpdb->prepare( "SELECT *
 												FROM `$table_name`
-												WHERE `settings_active` = %d AND uuid = %s", array( true, $preset['uuid'] ) );
+												WHERE `settings_active` = %d AND `uuid` = %s", array( true, $preset['uuid'] ) );
 			$loaded_presets = $wpdb->get_results( $safe_sql );
 
 			if ( $loaded_presets ) {
@@ -1094,9 +1093,58 @@ class Lins_Scroll_To_Top {
 				echo esc_attr( $scrollplugin_settings_title );
 				?>
 			</h1>
+
+			<div class="confirm-remove-modal">
+				<div class="modal-content">
+					<h2>Confirm Preset Removal</h2>
+					<div class="form-combo">
+						<div class="button-container">
+							<p class="current-preset-modal">Current Preset: <span></span></p>
+							<p>Do you want to form to remove the preset?</p>
+							<button class="button button-danger" onclick="linsScrollRemovePreset()">Confirm Removal</button>
+							<div class="button button-secondary js-close-modal-btn" tabindex="0"
+								onclick="linsScrollTopCloseModal()">
+								Cancel</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-bg" onclick="linsScrollTopCloseModal()">
+				</div>
+			</div>
+
+			<div class="remove-modal">
+				<div class="modal-content">
+					<div class="form-maxw">
+
+						<h2>Remove Preset</h2>
+						<div class="form-combo">
+							<?php
+							if ( count( $results ) > 0 ) {
+								echo '<select name="remove_preset" id="remove-preset">';
+								foreach ( $results as $curr_preset ) {
+									$value = $curr_preset->uuid;
+									$name  = $curr_preset->preset_name;
+									echo ( "<option value='{$value}'>{$name}</option>" );
+								}
+								echo '</select>';
+							}
+							?>
+							<div class="button-container">
+								<button class="button button-danger" onclick="linsScrollRemovePreset()">Remove Preset</button>
+								<div class="button button-secondary js-close-modal-btn" tabindex="0"
+									onclick="linsScrollTopCloseModal()">
+									Cancel</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-bg" onclick="linsScrollTopCloseModal()">
+				</div>
+			</div>
+
 			<div class="name-modal">
 				<div class="modal-content">
-					<h2>Save Preset for Scroll To Top Arrow</h2>
+					<h2>Save Preset</h2>
 					<div class="form-combo">
 						<label for="lins-scroll-preset-name">Preset Name</label>
 						<input type="text" name="lins_scroll_preset_name" id="lins-scroll-preset-name">
@@ -1109,27 +1157,32 @@ class Lins_Scroll_To_Top {
 				<div class="modal-bg" onclick="linsScrollTopCloseModal()">
 				</div>
 			</div>
+
+
 			<div class="alert-boxes">
 
 			</div>
 
 			<h3>Presets</h3>
 			<div>
-				<select name="select_preset" id="select-preset">
-					<?php
+				<?php
+				if ( count( $results ) > 0 ) {
+					echo '<select name="select_preset" id="select-preset">';
 					foreach ( $results as $curr_preset ) {
 						$value = $curr_preset->uuid;
 						$name  = $curr_preset->preset_name;
 						echo ( "<option value='{$value}'>{$name}</option>" );
 					}
-					?>
-				</select>
+					echo '</select>';
+				}
+				?>
 			</div>
 			<br>
 			<div>
 				<button class="button button-primary load-preset-btn" onclick="linsScrollLoadPreset()">Load Preset</button>
 				<button class="button button-secondary" style="display:none;">Edit Preset</button>
-				<button class="button button-danger">Remove Preset</button>
+				<button class="button button-danger-outline remove-preset-btn" onclick="linsScrollRemoveAlert()"
+					style="display:none;">Remove Preset</button>
 			</div>
 			<div class="current-preset">
 				<h2>Loaded preset: <span class="preset-name">No preset selected</span></h2>

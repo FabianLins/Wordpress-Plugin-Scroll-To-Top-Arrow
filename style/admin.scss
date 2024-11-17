@@ -6,12 +6,20 @@ $sm: 576px;
 $black: hsl(270, 7%, 5%);
 
 
-.button-danger {
+.button-danger-outline {
     border-color: rgb(187, 29, 29) !important;
     color: rgb(187, 29, 29) !important;
 }
 
-.name-modal {
+.button-danger {
+    background: rgb(187, 29, 29) !important;
+    color: white !important;
+    border-color: transparent !important;
+}
+
+.name-modal,
+.remove-modal,
+.confirm-remove-modal {
     display: none;
     width: 100%;
     height: 100vh;
@@ -83,6 +91,43 @@ $black: hsl(270, 7%, 5%);
     }
 }
 
+.confirm-remove-modal {
+    .current-preset-modal {
+        span {
+            font-weight: bold;
+        }
+    }
+}
+
+.remove-modal {
+    .form-combo {
+        flex-direction: column;
+
+        #select-preset {
+            width: 100%;
+        }
+    }
+
+    p {
+        font-size: 16px;
+        margin: 0;
+    }
+
+    .modal-content {
+        max-width: 500px;
+    }
+
+    .button-container {
+        margin-top: 10px;
+        margin-left: auto;
+        margin-right: 40px;
+
+        @media only screen and (max-width: $lg) {
+            width: 100%;
+        }
+    }
+}
+
 .js-modal-focus {
     overflow: hidden;
 }
@@ -116,4 +161,8 @@ $black: hsl(270, 7%, 5%);
     &:hover {
         text-decoration: underline;
     }
+}
+
+.js-show-btn {
+    display: inline-block !important;
 }

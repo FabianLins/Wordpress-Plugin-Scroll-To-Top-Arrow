@@ -1,3 +1,4 @@
+
 function linsPresetApply() {
     const saveChangesSpans = document.querySelectorAll('.js-save-changes-to-page');
     saveChangesSpans.forEach(currSave => {
@@ -156,7 +157,17 @@ function linsScrollTopSavePreset() {
                         action: 'reload_preset_select'
                     },
                     complete: function (errors) {
-                        if (errors.responseText) {
+                        if (!errors.responseText) {
+                            document.querySelector('.alert-boxes').innerHTML +=
+                                `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
+                                    <p>
+                                        <strong>
+                                            The presets could not be reloaded after saving a new one. (Error 123)
+                                        </strong>
+                                    </p>
+                                </div>`;
+                        }
+                        else {
                             errors.responseText = JSON.parse(errors.responseText);
                             //const errorAlerts = (Object.values(errors.responseText));
                             //console.log(errors.responseText);
@@ -167,16 +178,6 @@ function linsScrollTopSavePreset() {
                                 const name = currPreset.preset_name;
                                 document.querySelector('#select-preset').innerHTML += `<option value="${value}">${name}</option>`;
                             });
-                        }
-                        else {
-                            document.querySelector('.alert-boxes').innerHTML +=
-                                `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
-                                    <p>
-                                        <strong>
-                                            The presets could not be reloaded after saving a new one. (Error 123)
-                                        </strong>
-                                    </p>
-                                </div>`;
                         }
                     }
                 });
@@ -249,6 +250,7 @@ function linsScrollLoadPreset() {
                         </p>
                     </div>`;
                 linsPresetApply();
+                document.querySelector('.remove-preset-btn').classList.add("js-show-btn");
             } catch (error) {
                 console.error(error);
                 const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');
