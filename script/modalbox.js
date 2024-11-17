@@ -5,20 +5,23 @@ let lastFocusableElement = null;
 const nameModal = document.querySelector('.name-modal');
 const removeModal = document.querySelector('.remove-modal');
 const confirmRemoveModal = document.querySelector('.confirm-remove-modal');
-
-let removeSelection = NULL;
-let removeId = NULL;
-
-function linsScrollRemoveConfirm() {
-
-}
+let confirmRemoveModalActive = false;
+let removeSelection = null;
+let removeId = null;
 
 function linsScrollRemovePreset() {
     const removeSelectBox = document.querySelector('#remove-preset');
-    removeSelection = removeSelectBox.innerText;
     removeId = removeSelectBox.value;
+    for (let i = 0; i < removeSelectBox.length; i++) {
+        if (removeSelectBox[i].value === removeId) {
+            removeSelection = removeSelectBox[i].innerText;
+        }
+    }
+    document.querySelector('.current-preset-modal > span').innerText = removeSelection;
     confirmRemoveModal.classList.add('js-modal-active');
-    catchFocus('confirm-remove-modal');
+    removeModal.classList.remove('js-modal-active');
+    catchFocus(confirmRemoveModal);
+    confirmRemoveModalActive = true;
 }
 
 function linsScrollRemoveAlert() {
@@ -26,19 +29,27 @@ function linsScrollRemoveAlert() {
     removeModal.classList.add('js-modal-active');
     const currPreset = document.querySelector('span.preset-name').textContent;
     document.querySelector('.current-preset-modal span').innerHTML = currPreset;
-    catchFocus('remove-modal');
+    catchFocus(removeModal);
 }
 
 function linsScrollTopShowModal() {
     modalActive = true;
     nameModal.classList.add('js-modal-active');
-    catchFocus();
+    catchFocus(nameModal);
+}
+
+function linsScrollTopRemoveConfirmCloseModal() {
+    confirmRemoveModal.classList.remove('js-modal-active');
+    removeModal.classList.add('js-modal-active');
+    catchFocus(removeModal);
+    confirmRemoveModalActive = false;
 }
 
 function linsScrollTopCloseModal() {
     modalActive = false;
     nameModal.classList.remove('js-modal-active');
     removeModal.classList.remove('js-modal-active');
+    confirmRemoveModal.classList.remove('js-modal-active');
     document.body.classList.remove('js-modal-focus');
     removeFocus();
 }
@@ -57,30 +68,22 @@ function keyRemoveFocus(event) {
     }
 }
 
-function catchFocus() {
+function catchFocus(modal) {
     document.body.classList.add('js-modal-focus');
     const focusableElements =
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-    const modal = document.querySelector('.name-modal'); // select the modal by it's id
-    firstFocusableElement = modal.querySelectorAll(focusableElements); // get first element to be focused inside modal
+    firstFocusableElement = modal.querySelectorAll(focusableElements);
     focusableContent = modal.querySelectorAll(focusableElements);
-    lastFocusableElement = focusableContent[focusableContent.length - 1]; // get last element to be focused inside modal
+    lastFocusableElement = focusableContent[focusableContent.length - 1];
     firstFocusableElement[0].focus();
-    console.log(firstFocusableElement);
+    //console.log(firstFocusableElement);
 }
 
-document.addEventListener('keydown', (event) => {
-    alert('lol');
-    if (modalActive && event.key === 'Tab') {
-    }
-});
 
 document.addEventListener('keydown', (event) => {
-    alert('lol');
-
     if (modalActive && event.key === 'Tab') {
-        console.log(firstFocusableElement);
-        console.log(lastFocusableElement);
+        //console.log(firstFocusableElement);
+        //console.log(lastFocusableElement);
         if (event.shiftKey) { // Shift + Tab
             if (document.activeElement === firstFocusableElement[0]) {
                 lastFocusableElement.focus();
@@ -105,25 +108,33 @@ document.addEventListener('keydown', (event) => {
     if (modalActive && event.key === 'Escape') {
         const isNotCombinedKey = !(event.ctrlKey || event.altKey || event.shiftKey);
         if (isNotCombinedKey) {
-            linsScrollTopCloseModal();
+            if (confirmRemoveModalActive) {
+                linsScrollTopRemoveConfirmCloseModal();
+            }
+            else {
+                linsScrollTopCloseModal();
+            }
         }
     }
 });
 
+const closeBtn = document.querySelectorAll('.js-close-modal-btn');
+closeBtn.forEach(currBtn => {
+    currBtn.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+            linsScrollTopCloseModal();
+        }
+    });
+});
 
-
-const closeBtn = document.querySelector('.js-close-modal-btn');
-
-// add a click event listener to the div
-closeBtn.addEventListener('keydown', (event) => {
+const closeBtnConfirm = document.querySelector('.js-close-modal-btn-confirm');
+closeBtnConfirm.addEventListener('keydown', (event) => {
     if (event.key === 'Enter') {
-        linsScrollTopCloseModal();
+        linsScrollTopRemoveConfirmCloseModal();
     }
-    // specify the action to take when the div is clicked
 });
 
 document.querySelector('#lins-scroll-preset-name').addEventListener('keydown', (event) => {
-    console.log(this);
     if (event.key === 'Enter') {
         linsScrollTopSavePreset();
     }

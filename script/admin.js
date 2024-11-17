@@ -1,3 +1,129 @@
+function reloadRemoveSelect() {
+    jQuery.ajax({
+        type: 'post',
+        url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+        dataType: 'json',
+        data: {
+            action: 'reload_preset_select'
+        },
+        complete: function (errors) {
+            if (!errors.responseText) {
+                document.querySelector('.alert-boxes').innerHTML +=
+                    `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
+                        <p>
+                            <strong>
+                                The presets in the "Remove Preset" section could not be reloaded after saving a new one. (Error 500)
+                            </strong>
+                        </p>
+                    </div>`;
+            }
+            else {
+                errors.responseText = JSON.parse(errors.responseText);
+                //const errorAlerts = (Object.values(errors.responseText));
+                //console.log(errors.responseText);
+                document.querySelector('#remove-preset').innerHTML = '';
+                errors.responseText.forEach(currPreset => {
+                    //console.log(currPreset);
+                    const value = currPreset.uuid;
+                    const name = currPreset.preset_name;
+                    document.querySelector('#remove-preset').innerHTML += `<option value="${value}">${name}</option>`;
+                });
+            }
+        }
+    });
+}
+
+function reloadPresetSelect() {
+    jQuery.ajax({
+        type: 'post',
+        url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+        dataType: 'json',
+        data: {
+            action: 'reload_preset_select'
+        },
+        complete: function (errors) {
+            if (!errors.responseText) {
+                document.querySelector('.alert-boxes').innerHTML +=
+                    `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
+                        <p>
+                            <strong>
+                                The presets could not be reloaded after saving a new one. (Error 123)
+                            </strong>
+                        </p>
+                    </div>`;
+            }
+            else {
+                errors.responseText = JSON.parse(errors.responseText);
+                //const errorAlerts = (Object.values(errors.responseText));
+                //console.log(errors.responseText);
+                document.querySelector('#select-preset').innerHTML = '';
+                errors.responseText.forEach(currPreset => {
+                    //console.log(currPreset);
+                    const value = currPreset.uuid;
+                    const name = currPreset.preset_name;
+                    document.querySelector('#select-preset').innerHTML += `<option value="${value}">${name}</option>`;
+                });
+            }
+        }
+    });
+}
+
+function linsScrollRemoveConfirm() {
+    confirmRemoveModal.classList.add('js-modal-active');
+    removeModal.classList.remove('js-modal-active');
+    catchFocus(confirmRemoveModal);
+
+    deleteUuid = {
+        uuid: removeId
+    }
+    jQuery.ajax({
+        type: 'post',
+        url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+        dataType: 'json',
+        data: {
+            action: 'remove_preset',
+            ajax_data: deleteUuid
+        },
+        complete: function (repsonse) {
+            if (!repsonse) {
+                const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');
+                alerts.forEach(currAlert => {
+                    currAlert.classList.add('js-hide-alert');
+                });
+                document.querySelector('.alert-boxes').innerHTML +=
+                    `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
+                        <p>
+                            <strong>
+                                Preset ${removeSelection} could not be removed! (Error 400)
+                            </strong>
+                        </p>
+                    </div>`;
+            }
+            else {
+                const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');
+                alerts.forEach(currAlert => {
+                    currAlert.classList.add('js-hide-alert');
+                });
+                document.querySelector('.alert-boxes').innerHTML +=
+                    `<div id="setting-error-settings_updated" class="notice notice-success settings-success lins-scroll-arrow-alert">
+                        <p>
+                            <strong>
+                                Preset ${removeSelection} removed successfully!
+                            </strong>
+                        </p>
+                    </div>`;
+                reloadPresetSelect();
+                reloadRemoveSelect();
+                if (document.querySelector('.preset-name').innerHTML === removeSelection) {
+                    document.querySelector('.preset-name').innerHTML = 'No preset selected.'
+                }
+            }
+            linsScrollTopCloseModal();
+            removeSelection = null;
+            removeId = null;
+        }
+    });
+}
 
 function linsPresetApply() {
     const saveChangesSpans = document.querySelectorAll('.js-save-changes-to-page');
@@ -149,38 +275,8 @@ function linsScrollTopSavePreset() {
                                                                         </p>
                                                                     </div>`;
                 linsPresetApply();
-                jQuery.ajax({
-                    type: 'post',
-                    url: `${window.location.origin}/wp-admin/admin-ajax.php`,
-                    dataType: 'json',
-                    data: {
-                        action: 'reload_preset_select'
-                    },
-                    complete: function (errors) {
-                        if (!errors.responseText) {
-                            document.querySelector('.alert-boxes').innerHTML +=
-                                `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
-                                    <p>
-                                        <strong>
-                                            The presets could not be reloaded after saving a new one. (Error 123)
-                                        </strong>
-                                    </p>
-                                </div>`;
-                        }
-                        else {
-                            errors.responseText = JSON.parse(errors.responseText);
-                            //const errorAlerts = (Object.values(errors.responseText));
-                            //console.log(errors.responseText);
-                            document.querySelector('#select-preset').innerHTML = '';
-                            errors.responseText.forEach(currPreset => {
-                                //console.log(currPreset);
-                                const value = currPreset.uuid;
-                                const name = currPreset.preset_name;
-                                document.querySelector('#select-preset').innerHTML += `<option value="${value}">${name}</option>`;
-                            });
-                        }
-                    }
-                });
+                reloadPresetSelect();
+                reloadRemoveSelect();
             }
             linsScrollTopCloseModal();
             window.scrollTo({ top: 0, behavior: 'smooth' });
