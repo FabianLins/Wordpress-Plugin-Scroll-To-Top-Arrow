@@ -1,4 +1,6 @@
-function reloadRemoveSelect() {
+let loadedUuid = null;
+
+function linsScrollReloadRemoveSelect() {
     jQuery.ajax({
         type: 'post',
         url: `${window.location.origin}/wp-admin/admin-ajax.php`,
@@ -33,7 +35,7 @@ function reloadRemoveSelect() {
     });
 }
 
-function reloadPresetSelect() {
+function linsScrollReloadPresetSelect() {
     jQuery.ajax({
         type: 'post',
         url: `${window.location.origin}/wp-admin/admin-ajax.php`,
@@ -62,6 +64,74 @@ function reloadPresetSelect() {
                     const value = currPreset.uuid;
                     const name = currPreset.preset_name;
                     document.querySelector('#select-preset').innerHTML += `<option value="${value}">${name}</option>`;
+                });
+            }
+        }
+    });
+}
+
+function linsScrollEditPreset() {
+    const editPresetName = document.querySelector('[name="lins_scroll_preset_edit"]').value;
+    newName = {
+        uuid: loadedUuid,
+        newName: editPresetName,
+    };
+    jQuery.ajax({
+        type: 'post',
+        url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+        dataType: 'json',
+        data: {
+            action: 'check_preset_name',
+            ajax_data: newName
+        },
+        complete: function (response) {
+            //console.log((response.responseText));
+            if (response.responseText) {
+                document.querySelector('.alert-boxes').innerHTML +=
+                    `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
+                    <p>
+                        <strong>
+                            ${response.responseText}
+                        </strong>
+                    </p>
+                </div>`;
+                linsScrollTopCloseModal();
+            }
+            else {
+                jQuery.ajax({
+                    type: 'post',
+                    url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+                    dataType: 'json',
+                    data: {
+                        action: 'edit_preset_name',
+                        ajax_data: newName
+                    },
+                    complete: function (repsonse) {
+                        if (!repsonse.responseText) {
+                            document.querySelector('.alert-boxes').innerHTML +=
+                                `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
+                                    <p>
+                                        <strong>
+                                            Preset name could not be updated! (Error 601)   
+                                        </strong>
+                                    </p>
+                                </div>`;
+                        }
+                        else {
+                            document.querySelector('.alert-boxes').innerHTML +=
+                                `<div id="setting-error-settings_updated" class="notice notice-success settings-success lins-scroll-arrow-alert">
+                                    <p>
+                                        <strong>
+                                            Preset name is updated successfully! 
+                                        </strong>
+                                    </p>
+                                </div>`;
+                            linsScrollReloadPresetSelect();
+                            linsScrollReloadRemoveSelect();
+                            document.querySelector('.current-preset .preset-name').innerText = editPresetName;
+                        }
+                        linsScrollTopCloseModal();
+                    }
                 });
             }
         }
@@ -112,10 +182,11 @@ function linsScrollRemoveConfirm() {
                             </strong>
                         </p>
                     </div>`;
-                reloadPresetSelect();
-                reloadRemoveSelect();
+                linsScrollReloadPresetSelect();
+                linsScrollReloadRemoveSelect();
                 if (document.querySelector('.preset-name').innerHTML === removeSelection) {
                     document.querySelector('.preset-name').innerHTML = 'No preset selected.'
+                    loadedUuid = null;
                 }
             }
             linsScrollTopCloseModal();
@@ -125,7 +196,7 @@ function linsScrollRemoveConfirm() {
     });
 }
 
-function linsPresetApply() {
+function linsScrollPresetApply() {
     const saveChangesSpans = document.querySelectorAll('.js-save-changes-to-page');
     saveChangesSpans.forEach(currSave => {
         currSave.addEventListener('click', () => {
@@ -135,7 +206,6 @@ function linsPresetApply() {
 }
 
 function linsScrollTopSavePreset() {
-
     const presetName = document.querySelector('[name="lins_scroll_preset_name"]');
     //console.log(presetName);
 
@@ -274,9 +344,9 @@ function linsScrollTopSavePreset() {
                                                                             </strong>
                                                                         </p>
                                                                     </div>`;
-                linsPresetApply();
-                reloadPresetSelect();
-                reloadRemoveSelect();
+                linsScrollPresetApply();
+                linsScrollReloadPresetSelect();
+                linsScrollReloadRemoveSelect();
             }
             linsScrollTopCloseModal();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -286,12 +356,12 @@ function linsScrollTopSavePreset() {
 
 function linsScrollLoadPreset() {
     const selectElem = document.querySelector('#select-preset');
-    const uuid = selectElem.value;
+    loadedUuid = selectElem.value;
     //console.log(uuid);
     //console.log(presetName);
 
     uuidJson = {
-        uuid: uuid
+        uuid: loadedUuid
     };
 
     jQuery.ajax({
@@ -307,6 +377,8 @@ function linsScrollLoadPreset() {
             const presetObject = JSON.parse(presetSettings.responseText);
             try {
                 document.querySelector('.preset-name').innerHTML = presetObject.preset_name;
+                document.querySelector('.old-preset-name').innerHTML = presetObject.preset_name;
+
                 //console.log(presetObject);
                 //document.querySelector('.preset-name').innerHTML = presetSettings.responseText;
                 //document.querySelector('[name="lins_scroll_arrow_fill"]').value = '#FFFFFF';
@@ -345,8 +417,8 @@ function linsScrollLoadPreset() {
                             </strong>
                         </p>
                     </div>`;
-                linsPresetApply();
-                document.querySelector('.remove-preset-btn').classList.add("js-show-btn");
+                linsScrollPresetApply();
+                document.querySelector('.edit-preset-btn').classList.add("js-show-btn");
             } catch (error) {
                 console.error(error);
                 const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');

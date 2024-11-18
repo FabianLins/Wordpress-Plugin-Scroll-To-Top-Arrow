@@ -5,9 +5,16 @@ let lastFocusableElement = null;
 const nameModal = document.querySelector('.name-modal');
 const removeModal = document.querySelector('.remove-modal');
 const confirmRemoveModal = document.querySelector('.confirm-remove-modal');
+const editModal = document.querySelector('.edit-name-modal');
 let confirmRemoveModalActive = false;
 let removeSelection = null;
 let removeId = null;
+
+function linsScrollTopEditAlert() {
+    modalActive = true;
+    editModal.classList.add('js-modal-active');
+    linsScrollCatchFocus(editModal);
+}
 
 function linsScrollRemovePreset() {
     const removeSelectBox = document.querySelector('#remove-preset');
@@ -20,7 +27,7 @@ function linsScrollRemovePreset() {
     document.querySelector('.current-preset-modal > span').innerText = removeSelection;
     confirmRemoveModal.classList.add('js-modal-active');
     removeModal.classList.remove('js-modal-active');
-    catchFocus(confirmRemoveModal);
+    linsScrollCatchFocus(confirmRemoveModal);
     confirmRemoveModalActive = true;
 }
 
@@ -29,19 +36,19 @@ function linsScrollRemoveAlert() {
     removeModal.classList.add('js-modal-active');
     const currPreset = document.querySelector('span.preset-name').textContent;
     document.querySelector('.current-preset-modal span').innerHTML = currPreset;
-    catchFocus(removeModal);
+    linsScrollCatchFocus(removeModal);
 }
 
 function linsScrollTopShowModal() {
     modalActive = true;
     nameModal.classList.add('js-modal-active');
-    catchFocus(nameModal);
+    linsScrollCatchFocus(nameModal);
 }
 
 function linsScrollTopRemoveConfirmCloseModal() {
     confirmRemoveModal.classList.remove('js-modal-active');
     removeModal.classList.add('js-modal-active');
-    catchFocus(removeModal);
+    linsScrollCatchFocus(removeModal);
     confirmRemoveModalActive = false;
 }
 
@@ -50,11 +57,12 @@ function linsScrollTopCloseModal() {
     nameModal.classList.remove('js-modal-active');
     removeModal.classList.remove('js-modal-active');
     confirmRemoveModal.classList.remove('js-modal-active');
+    editModal.classList.remove('js-modal-active');
     document.body.classList.remove('js-modal-focus');
-    removeFocus();
+    linsScrollRemoveFocus();
 }
 
-function removeFocus() {
+function linsScrollRemoveFocus() {
     document.body.classList.remove('js-modal-focus');
     modalActive = false;
     firstFocusableElement = null;
@@ -62,13 +70,13 @@ function removeFocus() {
     lastFocusableElement = null;
 }
 
-function keyRemoveFocus(event) {
+function keyLinsScrollRemoveFocus(event) {
     if (event.key === 'Escape') {
         linsScrollTopCloseModal();
     }
 }
 
-function catchFocus(modal) {
+function linsScrollCatchFocus(modal) {
     document.body.classList.add('js-modal-focus');
     const focusableElements =
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -78,7 +86,6 @@ function catchFocus(modal) {
     firstFocusableElement[0].focus();
     //console.log(firstFocusableElement);
 }
-
 
 document.addEventListener('keydown', (event) => {
     if (modalActive && event.key === 'Tab') {
@@ -98,9 +105,9 @@ document.addEventListener('keydown', (event) => {
     }
 });
 
-function keyCatchFocus(event) {
+function keyLinsScrollCatchFocus(event) {
     if (event.key === 'Enter') {
-        catchFocus();
+        linsScrollCatchFocus();
     }
 }
 
