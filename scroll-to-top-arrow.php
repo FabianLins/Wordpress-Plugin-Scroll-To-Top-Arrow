@@ -45,6 +45,13 @@ class Lins_Scroll_To_Top {
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'admin_init', array( $this, 'settings' ) );
 
+		add_action( 'wp_ajax_edit_preset_name', 'edit_preset_name' );
+		add_action( 'wp_ajax_nopriv_edit_preset_name', 'edit_preset_name' );
+
+
+		add_action( 'wp_ajax_check_preset_name', 'check_preset_name' );
+		add_action( 'wp_ajax_nopriv_check_preset_name', 'check_preset_name' );
+
 		add_action( 'wp_ajax_remove_preset', 'remove_preset' );
 		add_action( 'wp_ajax_nopriv_remove_preset', 'remove_preset' );
 
@@ -104,6 +111,31 @@ class Lins_Scroll_To_Top {
 			if ( $loaded_presets ) {
 				echo json_encode( $loaded_presets[0] );
 			}
+			exit();
+		}
+
+		function check_preset_name() {
+			global $wpdb;
+			$preset         = $_POST['ajax_data'];
+			$table_name     = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$safe_sql       = $wpdb->prepare( "SELECT `preset_name`
+												FROM `$table_name`
+												WHERE `settings_active` = %d AND UPPER(`preset_name`) = UPPER(%s)", array( true, ( $preset['newName'] ) ) );
+			$loaded_presets = $wpdb->get_results( $safe_sql );
+			if ( $loaded_presets ) {
+				echo 'Name already exists. (Error 600) ';
+			}
+			exit();
+		}
+		function edit_preset_name() {
+			global $wpdb;
+			$preset           = $_POST['ajax_data'];
+			$table_name       = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$safe_sql         = $wpdb->prepare( "UPDATE `$table_name`
+												SET `preset_name` = %s
+												WHERE `uuid` = %s", array( $preset['newName'], $preset['uuid'] ) );
+			$existing_presets = $wpdb->query( $safe_sql );
+			echo ( $existing_presets );
 			exit();
 		}
 
@@ -1110,6 +1142,23 @@ class Lins_Scroll_To_Top {
 				?>
 			</h1>
 
+			<div class="edit-name-modal">
+				<div class="modal-content">
+					<h2>Edit Preset Name</h2>
+					<h3 class="old-preset-name">Old Preset Name</h3>
+					<div class="form-combo">
+						<label for="lins-scroll-preset-edit">New Preset Name</label>
+						<input type="text" name="lins_scroll_preset_edit" id="lins-scroll-preset-edit">
+						<button class="button button-primary" onclick="linsScrollEditPreset()">Save Preset</button>
+						<div class="button button-secondary js-close-modal-btn" tabindex="0"
+							onclick="linsScrollTopCloseModal()">
+							Cancel</div>
+					</div>
+				</div>
+				<div class="modal-bg" onclick="linsScrollTopCloseModal()">
+				</div>
+			</div>
+
 			<div class="confirm-remove-modal">
 				<div class="modal-content">
 					<h2>Confirm Preset Removal</h2>
@@ -1174,7 +1223,6 @@ class Lins_Scroll_To_Top {
 				</div>
 			</div>
 
-
 			<div class="alert-boxes">
 
 			</div>
@@ -1196,9 +1244,10 @@ class Lins_Scroll_To_Top {
 			<br>
 			<div>
 				<button class="button button-primary load-preset-btn" onclick="linsScrollLoadPreset()">Load Preset</button>
-				<button class="button button-secondary" style="display:none;">Edit Preset</button>
-				<button class="button button-danger-outline remove-preset-btn" onclick="linsScrollRemoveAlert()"
-					style="display:none;">Remove Preset</button>
+				<button class="button button-secondary edit-preset-btn" onclick="linsScrollTopEditAlert()"
+					style="display:none;">Edit Preset Name</button>
+				<button class="button button-danger-outline remove-preset-btn" onclick="linsScrollRemoveAlert()">Remove
+					Preset</button>
 			</div>
 			<div class="current-preset">
 				<h2>Loaded preset: <span class="preset-name">No preset selected.</span></h2>
