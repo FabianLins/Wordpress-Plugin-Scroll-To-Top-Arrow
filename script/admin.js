@@ -193,7 +193,8 @@ function linsScrollUpdatePreset() {
                     `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
                         <p>
                             <strong>
-                                The field(s): ${errorAlertsSpaces} contain(s) errors. Preset couldn't be updated.
+                                ${errorAlertsSpaces}
+                                Preset couldn't be updated.
                             </strong>
                         </p>
                     </div>`;
@@ -455,7 +456,8 @@ function linsScrollTopSavePreset() {
             ajax_data: myPreset
         },
         complete: function (errors) {
-            if (!errors.responseText) {
+            console.log(errors);
+            if (errors.responseText) {
                 //console.log(errors);
                 errors.responseText = JSON.parse(errors.responseText);
                 const errorAlerts = (Object.values(errors.responseText));
@@ -476,7 +478,8 @@ function linsScrollTopSavePreset() {
                     `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
                         <p>
                             <strong>
-                                The field(s): ${errorAlertsSpaces} contain(s) errors. Preset couldn't be saved.
+                                ${errorAlertsSpaces}
+                                Preset couldn't be saved.
                             </strong>
                         </p>
                     </div>`;
@@ -486,13 +489,6 @@ function linsScrollTopSavePreset() {
                 alerts.forEach(currAlert => {
                     currAlert.classList.add('js-hide-alert');
                 });
-                document.querySelector('.alert-boxes').innerHTML += `<div id="setting-error-settings_updated" class="notice notice-success settings-error lins-scroll-arrow-alert">
-                                                                        <p>
-                                                                            <strong>
-                                                                                Preset saved successfully! To apply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
-                                                                            </strong>
-                                                                        </p>
-                                                                    </div>`;
                 linsScrollPresetApply();
                 linsScrollReloadPresetSelect();
                 linsScrollReloadRemoveSelect();
@@ -500,7 +496,17 @@ function linsScrollTopSavePreset() {
                     document.querySelector('.preset-name').innerText = presetName.value;
                     const selectBox = document.querySelector('#select-preset');
                     selectBox[selectBox.length - 1].selected = true;
-                }, 50)
+                }, 50);
+                linsScrollLoadPreset();
+                setTimeout(() => {
+                    document.querySelector('.alert-boxes').innerHTML = `<div id="setting-error-settings_updated" class="notice notice-success settings-error lins-scroll-arrow-alert">
+                        <p>
+                            <strong>
+                                Preset saved and loaded successfully! To apply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
+                            </strong>
+                        </p>
+                    </div>`;
+                }, 50);
             }
             linsScrollTopCloseModal();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -592,13 +598,13 @@ function linsScrollLoadPreset() {
                 });
                 document.querySelector('.alert-boxes').innerHTML +=
                     `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
-                    <p>
-                        <strong>
-                            Preset could not be loaded! (Error 300)
-                            ${error}
-                        </strong>
-                    </p>
-                </div>`;
+                        <p>
+                            <strong>
+                                Preset could not be loaded! (Error 300)
+                                ${error}
+                            </strong>
+                        </p>
+                    </div>`;
             }
         }
     });
