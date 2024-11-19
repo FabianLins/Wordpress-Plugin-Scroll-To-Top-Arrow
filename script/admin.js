@@ -63,7 +63,11 @@ function linsScrollReloadPresetSelect() {
                     //console.log(currPreset);
                     const value = currPreset.uuid;
                     const name = currPreset.preset_name;
-                    document.querySelector('#select-preset').innerHTML += `<option value="${value}">${name}</option>`;
+                    let selected = '';
+                    if (value === loadedUuid) {
+                        selected = 'selected';
+                    }
+                    document.querySelector('#select-preset').innerHTML += `<option value="${value}" ${selected}>${name}</option>`;
                 });
             }
         }
@@ -562,6 +566,7 @@ function linsScrollLoadPreset() {
                             </strong>
                         </p>
                     </div>`;
+
                 linsScrollPresetApply();
                 if (loadedUuid !== '00000000-0000-0000-0000-000000000000') {
                     document.querySelector('.edit-preset-btn').classList.add("js-show-btn");
