@@ -284,9 +284,9 @@ function linsScrollEditPreset() {
 }
 
 function linsScrollRemoveConfirm() {
-    confirmRemoveModal.classList.add('js-modal-active');
+    confirmRemoveModal.classList.remove('js-modal-active');
     removeModal.classList.remove('js-modal-active');
-    catchFocus(confirmRemoveModal);
+    linsScrollTopCloseModal();
 
     deleteUuid = {
         uuid: removeId
@@ -563,9 +563,10 @@ function linsScrollLoadPreset() {
                         </p>
                     </div>`;
                 linsScrollPresetApply();
-                document.querySelector('.edit-preset-btn').classList.add("js-show-btn");
-                document.querySelector('.update-preset-btn').classList.add("js-show-btn");
-
+                if (loadedUuid !== '00000000-0000-0000-0000-000000000000') {
+                    document.querySelector('.edit-preset-btn').classList.add("js-show-btn");
+                    document.querySelector('.update-preset-btn').classList.add("js-show-btn");
+                }
             } catch (error) {
                 console.error(error);
                 const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');
