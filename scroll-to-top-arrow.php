@@ -462,7 +462,6 @@ class Lins_Scroll_To_Top {
 
 			if ( count( $errors ) > 0 ) {
 				echo json_encode( $errors );
-				exit();
 			} else {
 				$uuid    = UUID::v4();
 				$query   = $wpdb->prepare( "SELECT `uuid` FROM `$table_name` WHERE `uuid` = %s", $uuid );
@@ -503,6 +502,7 @@ class Lins_Scroll_To_Top {
 				$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
 				$wpdb->insert( $table_name, $form_data );
 			}
+			exit();
 		}
 
 
