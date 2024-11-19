@@ -63,11 +63,11 @@ function linsScrollReloadPresetSelect() {
                     //console.log(currPreset);
                     const value = currPreset.uuid;
                     const name = currPreset.preset_name;
-                    let selected = '';
+                    let selectedCheck = '';
                     if (value === loadedUuid) {
-                        selected = 'selected';
+                        selectedCheck = 'selected';
                     }
-                    document.querySelector('#select-preset').innerHTML += `<option value="${value}" ${selected}>${name}</option>`;
+                    document.querySelector('#select-preset').innerHTML += `<option value="${value}" ${selectedCheck}>${name}</option>`;
                 });
             }
         }
@@ -496,6 +496,11 @@ function linsScrollTopSavePreset() {
                 linsScrollPresetApply();
                 linsScrollReloadPresetSelect();
                 linsScrollReloadRemoveSelect();
+                setTimeout(() => {
+                    document.querySelector('.preset-name').innerText = presetName.value;
+                    const selectBox = document.querySelector('#select-preset');
+                    selectBox[selectBox.length - 1].selected = true;
+                }, 50)
             }
             linsScrollTopCloseModal();
             window.scrollTo({ top: 0, behavior: 'smooth' });

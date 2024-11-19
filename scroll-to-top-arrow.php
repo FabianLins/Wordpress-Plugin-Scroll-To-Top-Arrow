@@ -221,7 +221,7 @@ class Lins_Scroll_To_Top {
 						$preset['scrollBgColor'],
 						$preset['scrollBgOpacity'],
 						$preset['uuid'],
-						true
+						true // `settings_active`
 					);
 					//var_dump( $sql_args );
 					$safe_sql       = $wpdb->prepare( "UPDATE `$table_name`
