@@ -180,3 +180,8 @@ $black: hsl(270, 7%, 5%);
 .js-show-btn {
     display: inline-block !important;
 }
+
+.js-button-disabled {
+    pointer-events: none;
+    opacity: .5;
+}

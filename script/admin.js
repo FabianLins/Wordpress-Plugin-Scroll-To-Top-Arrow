@@ -6,7 +6,7 @@ function linsScrollReloadRemoveSelect() {
         url: `${window.location.origin}/wp-admin/admin-ajax.php`,
         dataType: 'json',
         data: {
-            action: 'reload_preset_select'
+            action: 'reload_preset_select_remove'
         },
         complete: function (errors) {
             if (!errors.responseText) {
@@ -206,7 +206,7 @@ function linsScrollUpdatePreset() {
                 document.querySelector('.alert-boxes').innerHTML += `<div id="setting-error-settings_updated" class="notice notice-success settings-error lins-scroll-arrow-alert">
                                                                         <p>
                                                                             <strong>
-                                                                                Preset updated successfully! To aply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
+                                                                                Preset updated successfully! To apply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
                                                                             </strong>
                                                                         </p>
                                                                     </div>`;
@@ -489,7 +489,7 @@ function linsScrollTopSavePreset() {
                 document.querySelector('.alert-boxes').innerHTML += `<div id="setting-error-settings_updated" class="notice notice-success settings-error lins-scroll-arrow-alert">
                                                                         <p>
                                                                             <strong>
-                                                                                Preset saved successfully! To aply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
+                                                                                Preset saved successfully! To apply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
                                                                             </strong>
                                                                         </p>
                                                                     </div>`;
@@ -562,16 +562,23 @@ function linsScrollLoadPreset() {
                     `<div id="setting-error-settings_updated" class="notice notice-success settings-success lins-scroll-arrow-alert">
                         <p>
                             <strong>
-                                Preset loaded successfully. To aply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
+                                Preset loaded successfully. To apply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
                             </strong>
                         </p>
                     </div>`;
 
                 linsScrollPresetApply();
-                if (loadedUuid !== '00000000-0000-0000-0000-000000000000') {
-                    document.querySelector('.edit-preset-btn').classList.add("js-show-btn");
-                    document.querySelector('.update-preset-btn').classList.add("js-show-btn");
+                document.querySelector('.edit-preset-btn').classList.add("js-show-btn");
+                document.querySelector('.update-preset-btn').classList.add("js-show-btn");
+                if (loadedUuid === '00000000-0000-0000-0000-000000000000') {
+                    document.querySelector('.edit-preset-btn').classList.add("js-button-disabled");
+                    document.querySelector('.update-preset-btn').classList.add("js-button-disabled");
                 }
+                else {
+                    document.querySelector('.edit-preset-btn').classList.remove("js-button-disabled");
+                    document.querySelector('.update-preset-btn').classList.remove("js-button-disabled");
+                }
+
             } catch (error) {
                 console.error(error);
                 const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');

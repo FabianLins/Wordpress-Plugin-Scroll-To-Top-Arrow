@@ -13,6 +13,9 @@ class Lins_Scroll_To_Top {
 	function __construct() {
 		include 'inc/uuid.inc.php';
 
+		// Blank UUID
+		define( 'BLANK_UUID', '00000000-0000-0000-0000-000000000000' );
+
 		//Breakpoints
 		define( 'BP_LG', 992 );
 		define( 'BP_MD', 768 );
@@ -65,6 +68,10 @@ class Lins_Scroll_To_Top {
 		add_action( 'wp_ajax_reload_preset_select', 'reload_preset_select' );
 		add_action( 'wp_ajax_nopriv_reload_preset_select', 'reload_preset_select' );
 
+		add_action( 'wp_ajax_reload_preset_select_remove', 'reload_preset_select_remove' );
+		add_action( 'wp_ajax_nopriv_reload_preset_select_remove', 'reload_preset_select_remove' );
+
+
 		function sanitize_opacity_db( $input ) {
 			$input = floatval( $input );
 			if ( is_float( $input ) ) {
@@ -90,7 +97,7 @@ class Lins_Scroll_To_Top {
 		function update_preset() {
 			global $wpdb;
 			$preset = $_POST['ajax_data'];
-			if ( $preset['uuid'] !== '00000000-0000-0000-0000-000000000000' ) {
+			if ( $preset['uuid'] !== BLANK_UUID ) {
 				$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
 
 				$errors = array();
@@ -261,6 +268,21 @@ class Lins_Scroll_To_Top {
 			exit();
 		}
 
+		function reload_preset_select_remove() {
+			global $wpdb;
+			$table_name  = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$safe_sql    = $wpdb->prepare( "SELECT `uuid`, `preset_name`
+												FROM `$table_name`
+												WHERE `settings_active` = %d AND NOT `uuid` = %s ORDER BY `database_timestamp` ASC", array( true, BLANK_UUID ) );
+			$all_presets = $wpdb->get_results( $safe_sql );
+			if ( $all_presets ) {
+				echo json_encode( $all_presets );
+			}
+			exit();
+		}
+
+
+
 		function load_preset() {
 			global $wpdb;
 			$preset         = $_POST['ajax_data'];
@@ -292,7 +314,7 @@ class Lins_Scroll_To_Top {
 		function edit_preset_name() {
 			global $wpdb;
 			$preset = $_POST['ajax_data'];
-			if ( $preset['uuid'] !== '00000000-0000-0000-0000-000000000000' ) {
+			if ( $preset['uuid'] !== BLANK_UUID ) {
 				$table_name       = $wpdb->prefix . 'lins_scroll_arrow_presets';
 				$safe_sql         = $wpdb->prepare( "UPDATE `$table_name`
 													SET `preset_name` = %s
@@ -306,7 +328,7 @@ class Lins_Scroll_To_Top {
 		function remove_preset() {
 			global $wpdb;
 			$preset = $_POST['ajax_data'];
-			if ( $preset['uuid'] !== '00000000-0000-0000-0000-000000000000' ) {
+			if ( $preset['uuid'] !== BLANK_UUID ) {
 
 				$table_name    = $wpdb->prefix . 'lins_scroll_arrow_presets';
 				$safe_sql      = $wpdb->prepare( "UPDATE `$table_name`
@@ -705,7 +727,7 @@ class Lins_Scroll_To_Top {
 			dbDelta( $sql );
 
 			$form_data = array(
-				'uuid'                   => '00000000-0000-0000-0000-000000000000',
+				'uuid'                   => BLANK_UUID,
 				'preset_name'            => 'Default Preset',
 				'arrow_fill'             => ltrim( ARROW_FILL_DEF, '#' ),
 				'arrow_opacity'          => ARROW_OPACITY_DEF,
@@ -1330,7 +1352,7 @@ class Lins_Scroll_To_Top {
 					<h2>Confirm Preset Removal</h2>
 					<div class="form-combo">
 						<div class="button-container">
-							<p class="current-preset-modal">Current Preset: <span></span></p>
+							<p class="current-preset-modal">Remove Preset: <span></span></p>
 							<p>Do you really want remove the preset?</p>
 							<button class="button button-danger" onclick="linsScrollRemoveConfirm()">Confirm Removal</button>
 							<div class="button button-secondary js-close-modal-btn-confirm" tabindex="0"
@@ -1354,8 +1376,10 @@ class Lins_Scroll_To_Top {
 								echo '<select name="remove_preset" id="remove-preset">';
 								foreach ( $results as $curr_preset ) {
 									$value = $curr_preset->uuid;
-									$name  = $curr_preset->preset_name;
-									echo ( "<option value='{$value}'>{$name}</option>" );
+									if ( $value !== BLANK_UUID ) {
+										$name = $curr_preset->preset_name;
+										echo ( "<option value='{$value}'>{$name}</option>" );
+									}
 								}
 								echo '</select>';
 							}
