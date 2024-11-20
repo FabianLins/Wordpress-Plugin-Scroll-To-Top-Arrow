@@ -64,7 +64,8 @@ function linsScrollReloadPresetSelect() {
                     const value = currPreset.uuid;
                     const name = currPreset.preset_name;
                     let selectedCheck = '';
-                    if (value === loadedUuid) {
+                    const currUuid = getCookie('loadedUuid');
+                    if (value === currUuid) {
                         selectedCheck = 'selected';
                     }
                     document.querySelector('#select-preset').innerHTML += `<option value="${value}" ${selectedCheck}>${name}</option>`;
@@ -137,9 +138,9 @@ function linsScrollUpdatePreset() {
 
     const scrollBgOpacity = document.querySelector('[name="lins_scroll_bg_opacity"]');
     //console.log(scrollBgOpacity);
-
+    currUuid = getCookie('loadedUuid');
     myPreset = {
-        uuid: loadedUuid,
+        uuid: currUuid,
         scrollArrowFill: scrollArrowFill.value,
         scrollArrowOpacity: scrollArrowOpacity.value,
         scrollArrowBg: scrollArrowBg.value,
@@ -222,8 +223,9 @@ function linsScrollUpdatePreset() {
 
 function linsScrollEditPreset() {
     const editPresetName = document.querySelector('[name="lins_scroll_preset_edit"]').value;
+    currUuid = getCookie('currUuid');
     newName = {
-        uuid: loadedUuid,
+        uuid: currUuid,
         newName: editPresetName,
     };
     jQuery.ajax({
@@ -336,7 +338,7 @@ function linsScrollRemoveConfirm() {
                 linsScrollReloadRemoveSelect();
                 if (document.querySelector('.preset-name').innerHTML === removeSelection) {
                     document.querySelector('.preset-name').innerHTML = 'No preset selected.'
-                    loadedUuid = null;
+                    deleteCookie('loadedUuid');
                 }
             }
             linsScrollTopCloseModal();
@@ -516,12 +518,13 @@ function linsScrollTopSavePreset() {
 
 function linsScrollLoadPreset() {
     const selectElem = document.querySelector('#select-preset');
-    loadedUuid = selectElem.value;
+    document.cookie = `loadedUuid=${selectElem.value}`;
+    const currUuid = getCookie('loadedUuid');
     //console.log(uuid);
     //console.log(presetName);
 
     uuidJson = {
-        uuid: loadedUuid
+        uuid: currUuid
     };
 
     jQuery.ajax({
@@ -581,7 +584,7 @@ function linsScrollLoadPreset() {
                 linsScrollPresetApply();
                 document.querySelector('.edit-preset-btn').classList.add("js-show-btn");
                 document.querySelector('.update-preset-btn').classList.add("js-show-btn");
-                if (loadedUuid === '00000000-0000-0000-0000-000000000000') {
+                if (currUuid === '00000000-0000-0000-0000-000000000000') {
                     document.querySelector('.edit-preset-btn').classList.add("js-button-disabled");
                     document.querySelector('.update-preset-btn').classList.add("js-button-disabled");
                 }
