@@ -1,3 +1,13 @@
+$white: white;
+$black: hsl(270, 7%, 5%);
+$prim: #502eb8;
+$blue-light: hsl(180, 25%, 97%);
+
+// Breakpoints
+$lg: 992px;
+$md: 768px;
+$sm: 576px;
+
 .button-danger-outline {
     border-color: rgb(187, 29, 29) !important;
     color: rgb(187, 29, 29) !important;
@@ -20,6 +30,11 @@
             margin-top: 30px;
         }
     }
+}
+
+.scroll-bottom-fade {
+    z-index: 11001;
+    left: 0;
 }
 
 .name-modal,

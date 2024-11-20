@@ -150,53 +150,37 @@ class Lins_Scroll_To_Top {
 			$bg_opacity = get_option( 'lins_scroll_bg_opacity', BG_OPACITY_DEF );
 
 			$custom_css = ".scroll-arrow {
-								background-color: rgba( {$r} , {$g} , {$b} , {$opacity} )!important;
-								width: {$size}px!important;
-								height: {$size}px!important;
-								right: {$margin_size}px!important;
-								bottom: {$margin_size}px!important;
+								background-color: rgba( {$r} , {$g} , {$b} , {$opacity} );
+								width: {$size}px;
+								height: {$size}px;
+								right: {$margin_size}px;
+								bottom: {$margin_size}px;
 							}";
 
-			$custom_css .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( {$r_hover} , {$g_hover} , {$b_hover} , {$opacity_hover} )!important; }";
-			$custom_css .= ".scroll-arrow svg { width: {$arrow_size}%!important ;}";
-			$custom_css .= ".scroll-arrow:hover svg, .scroll-arrow:focus-within svg { transform: rotate(180deg) translateY({$translate_size}px)!important; }";
+			$custom_css .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( {$r_hover} , {$g_hover} , {$b_hover} , {$opacity_hover} ); }";
+			$custom_css .= ".scroll-arrow svg { width: {$arrow_size}% ;}";
+			$custom_css .= ".scroll-arrow:hover svg, .scroll-arrow:focus-within svg { transform: rotate(180deg) translateY({$translate_size}px); }";
 
 
-			$custom_css .= ".scroll-bottom-fade { height:{$bg_height}px!important; }";
+			$custom_css .= ".scroll-bottom-fade { height:{$bg_height}px; }";
 
-			$custom_css .= "@media only screen and (max-width: " . BP_LG . "px) { .scroll-bottom-fade { height:{$bg_height_lg}px;!important } }";
-			$custom_css .= "@media only screen and (max-width: " . BP_MD . "px) { .scroll-bottom-fade { height:{$bg_height_md}px;!important } }";
-			$custom_css .= "@media only screen and (max-width: " . BP_SM . "px) { .scroll-bottom-fade { height:{$bg_height_sm}px;!important } }";
+			$custom_css .= "@media only screen and (max-width: " . BP_LG . "px) { .scroll-bottom-fade { height:{$bg_height_lg}px; } }";
+			$custom_css .= "@media only screen and (max-width: " . BP_MD . "px) { .scroll-bottom-fade { height:{$bg_height_md}px; } }";
+			$custom_css .= "@media only screen and (max-width: " . BP_SM . "px) { .scroll-bottom-fade { height:{$bg_height_sm}px; } }";
 
 			$custom_css .= ".scroll-bottom-fade { background: linear-gradient(180deg, transparent, rgba( {$r_bg}, {$g_bg}, {$b_bg}, {$bg_opacity} ) ) ; }";
 
-			$custom_css .= "@media only screen and (max-width: " . BP_LG . "px) { .scroll-arrow { width: {$size_lg}px; height:{$size_lg}px ;} }";
-			$custom_css .= "@media only screen and (max-width: " . BP_MD . "px) { .scroll-arrow { width: {$size_md}px; height:{$size_md}px ;} }";
+			$custom_css .= "@media only screen and (max-width: " . BP_LG . "px) { .scroll-arrow { width: {$size_lg}px; height:{$size_lg}px; } }";
+			$custom_css .= "@media only screen and (max-width: " . BP_MD . "px) { .scroll-arrow { width: {$size_md}px; height:{$size_md}px; } }";
 			$custom_css .= "@media only screen and (max-width: " . BP_SM . "px) { .scroll-arrow { width: {$size_sm}px; height:{$size_sm}px ;} }";
 
-			$custom_css .= "@media only screen and (max-width: " . BP_LG . "px) { .scroll-arrow { right: {$margin_size_lg}px; bottom:{$margin_size_lg}px ;} }";
-			$custom_css .= "@media only screen and (max-width: " . BP_MD . "px) { .scroll-arrow { right: {$margin_size_md}px; bottom:{$margin_size_md}px ;} }";
-			$custom_css .= "@media only screen and (max-width: " . BP_SM . "px) { .scroll-arrow { right: {$margin_size_sm}px; bottom:{$margin_size_sm}px ;} }";
+			$custom_css .= "@media only screen and (max-width: " . BP_LG . "px) { .scroll-arrow { right: {$margin_size_lg}px; bottom:{$margin_size_lg}px; } }";
+			$custom_css .= "@media only screen and (max-width: " . BP_MD . "px) { .scroll-arrow { right: {$margin_size_md}px; bottom:{$margin_size_md}px; } }";
+			$custom_css .= "@media only screen and (max-width: " . BP_SM . "px) { .scroll-arrow { right: {$margin_size_sm}px; bottom:{$margin_size_sm}px; } }";
 			$custom_css .= ".scroll-arrow svg { fill: {$arrow_fill}; }";
 
 			return $custom_css;
 		}
-
-		function settings_css() {
-			wp_enqueue_style( 'settings_css', get_template_directory_uri() . '/css/lins-scroll-arrow-settings.css', array(), '1.0.0', 'all' );
-			$custom_css = get_settings_css();
-			wp_add_inline_style( 'settings_css', $custom_css );
-		}
-
-		add_action( 'wp_enqueue_scripts', 'settings_css' );
-
-		function admin_settings_css() {
-			wp_enqueue_style( 'admin-settings-css', get_template_directory_uri() . '/css/lins-scroll-arrow-settings-admin.css', array(), '1.0.0', 'all' );
-			$custom_css = get_settings_css();
-			wp_add_inline_style( 'admin-settings-css', $custom_css );
-		}
-
-		//add_action( 'admin_enqueue_scripts', 'admin_settings_css' );
 
 
 		function sanitize_opacity_db( $input ) {
@@ -702,20 +686,35 @@ class Lins_Scroll_To_Top {
 			if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
 				$plugin_url = plugin_dir_url( __FILE__ );
 				wp_register_style( 'add_admin_arrow_css', $plugin_url . 'style/style.min.css', false, '1.0.0' );
-				wp_enqueue_style( 'style', $plugin_url . 'style/style.min.css' );
+				wp_enqueue_style( 'add_admin_arrow_css', $plugin_url . 'style/style.min.css' );
 			}
 		}
 
 		add_action( 'admin_enqueue_scripts', 'add_admin_arrow_css' );
 
-
-
 		function add_css() {
 			$plugin_url = plugin_dir_url( __FILE__ );
-			wp_enqueue_style( 'style', $plugin_url . 'style/style.min.css' );
+			wp_enqueue_style( 'arrow_style', $plugin_url . 'style/style.min.css' );
 		}
 
 		add_action( 'wp_enqueue_scripts', 'add_css' );
+
+		function settings_css() {
+			wp_enqueue_style( 'settings_css', get_template_directory_uri() . '/css/lins-scroll-arrow-settings.css', array(), '1.0.0', 'all' );
+			$custom_css = get_settings_css();
+			wp_add_inline_style( 'settings_css', $custom_css );
+		}
+
+		add_action( 'wp_enqueue_scripts', 'settings_css' );
+
+		function admin_settings_css() {
+			wp_enqueue_style( 'admin_settings_css', get_template_directory_uri() . '/css/lins-scroll-arrow-settings-admin.css', array(), '1.0.0', 'all' );
+			$custom_css = get_settings_css();
+			wp_add_inline_style( 'admin_settings_css', $custom_css );
+		}
+
+		add_action( 'admin_enqueue_scripts', 'admin_settings_css' );
+
 
 		function render_html() {
 			echo
@@ -752,10 +751,6 @@ class Lins_Scroll_To_Top {
 			wp_enqueue_style( 'wp-color-picker' );
 			wp_enqueue_script( 'my-script-handle', plugins_url( 'script/color-script.js', __FILE__ ), array( 'wp-color-picker' ), false, true );
 		}
-
-		wp_enqueue_style( 'my-stylesheet', false );
-
-		add_action( 'wp_enqueue_scripts', 'rt_custom_enqueue' );
 
 
 		function create_the_custom_table() {
@@ -1421,6 +1416,8 @@ class Lins_Scroll_To_Top {
 						c-5.857-5.857-15.355-5.858-21.213,0.001c-5.858,5.858-5.858,15.355,0,21.213l150.004,150c2.813,2.813,6.628,4.393,10.606,4.393
 						s7.794-1.581,10.606-4.394l149.996-150C331.465,94.749,331.465,85.251,325.607,79.393z"></path>
 			</svg>
+		</div>
+		<div class="scroll-bottom-fade">
 		</div>
 		<div class="wrap">
 			<h1>
