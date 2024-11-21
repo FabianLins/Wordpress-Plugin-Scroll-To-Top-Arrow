@@ -71,48 +71,12 @@ class Lins_Scroll_To_Top {
 		add_action( 'wp_ajax_reload_preset_select_remove', 'reload_preset_select_remove' );
 		add_action( 'wp_ajax_nopriv_reload_preset_select_remove', 'reload_preset_select_remove' );
 
-		if ( isset( $_GET['settings-updated'] ) ) {
-			function add_cookie_submit_js() {
-				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
-
-					$plugin_url = plugin_dir_url( __FILE__ );
-
-					wp_enqueue_script( 'add_cookie_submit_js',
-						$plugin_url . 'script/cookies.js',
-						array(),
-						'1.0.0',
-						array(
-							'strategy' => 'defer',
-						)
-					);
-				}
-			}
-
-			add_action( 'admin_enqueue_scripts', 'add_cookie_submit_js' );
-
-
-			function add_admin_submit_js() {
-				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
-
-					$plugin_url = plugin_dir_url( __FILE__ );
-
-					wp_enqueue_script( 'add_admin_submit_js',
-						$plugin_url . 'script/submit-settings.js',
-						array(),
-						'1.0.0',
-						array(
-							'strategy' => 'defer',
-						)
-					);
-				}
-			}
-
-			add_action( 'admin_enqueue_scripts', 'add_admin_submit_js' );
+		function presetSavedChangesEqual() {
 			global $wpdb;
 			$table_name      = $wpdb->prefix . 'lins_scroll_arrow_presets';
 			$safe_sql        = $wpdb->prepare( "SELECT *
-											FROM `$table_name`
-											WHERE `settings_active` = %d AND `uuid` = %s ORDER BY `database_timestamp` ASC", array( true, $_COOKIE['loadedUuid'] ) );
+												FROM `$table_name`
+												WHERE `settings_active` = %d AND `uuid` = %s ORDER BY `database_timestamp` ASC", array( true, $_COOKIE['loadedUuid'] ) );
 			$selected_preset = $wpdb->get_results( $safe_sql );
 			//var_dump( $selected_preset ); 
 			//die;
@@ -181,6 +145,48 @@ class Lins_Scroll_To_Top {
 
 			if ( $selected_preset[0]->arrow_shadow_opacity !== get_option( 'lins_scroll_bg_opacity' ) )
 				$presetChangesEqual = false;
+			return $presetChangesEqual;
+		}
+
+		if ( isset( $_GET['settings-updated'] ) ) {
+			function add_cookie_submit_js() {
+				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
+
+					$plugin_url = plugin_dir_url( __FILE__ );
+
+					wp_enqueue_script( 'add_cookie_submit_js',
+						$plugin_url . 'script/cookies.js',
+						array(),
+						'1.0.0',
+						array(
+							'strategy' => 'defer',
+						)
+					);
+				}
+			}
+
+			add_action( 'admin_enqueue_scripts', 'add_cookie_submit_js' );
+
+
+			function add_admin_submit_js() {
+				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
+
+					$plugin_url = plugin_dir_url( __FILE__ );
+
+					wp_enqueue_script( 'add_admin_submit_js',
+						$plugin_url . 'script/submit-settings.js',
+						array(),
+						'1.0.0',
+						array(
+							'strategy' => 'defer',
+						)
+					);
+				}
+			}
+
+			add_action( 'admin_enqueue_scripts', 'add_admin_submit_js' );
+
+			$presetChangesEqual = presetSavedChangesEqual();
 
 			if ( $presetChangesEqual ) {
 
@@ -211,54 +217,31 @@ class Lins_Scroll_To_Top {
 
 		if ( get_option( 'lins_scroll_loaded_preset' ) ) {
 
-			// loadPreset cookie uuid
-
-			function add_admin_load_preset_previous() {
-				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
-
-					$plugin_url = plugin_dir_url( __FILE__ );
-
-					wp_enqueue_script( 'add_admin_load_preset_previous',
-						$plugin_url . 'script/cookies.js',
-						array(),
-						'1.0.0',
-						array(
-							'strategy' => 'defer',
-						)
-					);
-
-					wp_enqueue_script( 'add_admin_load_preset_previous',
-						$plugin_url . 'script/admin.js',
-						array(),
-						'1.0.0',
-						array(
-							'strategy' => 'defer',
-						)
-					);
-				}
-			}
-
-			add_action( 'admin_enqueue_scripts', 'add_admin_load_preset_previous' );
-
-
-			function add_admin_load_preset_js() {
-				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
-
-					$plugin_url = plugin_dir_url( __FILE__ );
-
-					wp_enqueue_script( 'add_admin_load_preset_js',
-						$plugin_url . 'script/load-preset.js',
-						array(),
-						'1.0.0',
-						array(
-							'strategy' => 'defer',
-						)
-					);
-				}
-			}
-
 			//add_action( 'admin_enqueue_scripts', 'add_admin_load_preset_js' );
+			$presetChangesEqual = presetSavedChangesEqual();
 
+			if ( $presetChangesEqual ) {
+				function add_admin_onload_load_preset() {
+					if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
+
+						$plugin_url = plugin_dir_url( __FILE__ );
+
+						wp_enqueue_script( 'add_admin_onload_load_preset',
+							$plugin_url . 'script/load-preset.js',
+							array(),
+							'1.0.0',
+							array(
+								'strategy' => 'defer',
+							)
+						);
+					}
+				}
+
+				add_action( 'admin_enqueue_scripts', 'add_admin_onload_load_preset' );
+
+			} else {
+				update_option( 'lins_scroll_loaded_preset', false );
+			}
 		}
 
 		function get_settings_css() {
