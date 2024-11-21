@@ -496,6 +496,8 @@ function linsScrollTopSavePreset() {
                     document.querySelector('.preset-name').innerText = presetName.value;
                     const selectBox = document.querySelector('#select-preset');
                     selectBox[selectBox.length - 1].selected = true;
+                    document.querySelector('.edit-preset-btn').classList.remove("js-button-disabled");
+                    document.querySelector('.update-preset-btn').classList.remove("js-button-disabled");
                 }, 50);
                 linsScrollLoadPreset();
                 setTimeout(() => {
@@ -610,6 +612,6 @@ function linsScrollLoadPreset() {
     document.cookie = `loadedUuid=${selectElem.value}`;
     const currUuid = getCookie('loadedUuid');
     //console.log(presetName);
-    console.log(currUuid)
+    //console.log(currUuid)
     linsScrollLoadPresetAjax(currUuid);
 }
