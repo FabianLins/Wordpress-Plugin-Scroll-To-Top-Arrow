@@ -1,5 +1,3 @@
-let loadedUuid = null;
-
 function linsScrollReloadRemoveSelect() {
     jQuery.ajax({
         type: 'post',
@@ -516,13 +514,7 @@ function linsScrollTopSavePreset() {
     });
 }
 
-function linsScrollLoadPreset() {
-    const selectElem = document.querySelector('#select-preset');
-    document.cookie = `loadedUuid=${selectElem.value}`;
-    const currUuid = getCookie('loadedUuid');
-    //console.log(uuid);
-    //console.log(presetName);
-
+function linsScrollLoadPresetAjax(currUuid) {
     uuidJson = {
         uuid: currUuid
     };
@@ -573,7 +565,7 @@ function linsScrollLoadPreset() {
                     currAlert.classList.add('js-hide-alert');
                 });
                 document.querySelector('.alert-boxes').innerHTML +=
-                    `<div id="setting-error-settings_updated" class="notice notice-success settings-success lins-scroll-arrow-alert">
+                    `<div id="setting-error-settings_updated" class="notice notice-success settings-success lins-scroll-arrow-alert js-loaded-successfully">
                         <p>
                             <strong>
                                 Preset loaded successfully. To apply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
@@ -611,4 +603,13 @@ function linsScrollLoadPreset() {
             }
         }
     });
+};
+
+function linsScrollLoadPreset() {
+    const selectElem = document.querySelector('#select-preset');
+    document.cookie = `loadedUuid=${selectElem.value}`;
+    const currUuid = getCookie('loadedUuid');
+    //console.log(presetName);
+    console.log(currUuid)
+    linsScrollLoadPresetAjax(currUuid);
 }

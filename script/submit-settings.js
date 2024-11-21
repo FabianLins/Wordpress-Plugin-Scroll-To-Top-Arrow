@@ -1,1 +1,1 @@
-alert(getCookie('loadedUuid'));
+//alert(getCookie('loadedUuid'));
