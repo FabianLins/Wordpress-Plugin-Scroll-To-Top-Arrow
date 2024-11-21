@@ -456,9 +456,8 @@ function linsScrollTopSavePreset() {
             ajax_data: myPreset
         },
         complete: function (errors) {
-            console.log(errors);
+            //console.log(errors);
             if (errors.responseText) {
-                //console.log(errors);
                 errors.responseText = JSON.parse(errors.responseText);
                 const errorAlerts = (Object.values(errors.responseText));
                 let errorAlertsSpaces = '';
