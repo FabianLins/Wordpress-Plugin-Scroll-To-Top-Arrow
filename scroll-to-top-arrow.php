@@ -72,7 +72,6 @@ class Lins_Scroll_To_Top {
 		add_action( 'wp_ajax_nopriv_reload_preset_select_remove', 'reload_preset_select_remove' );
 
 		if ( isset( $_GET['settings-updated'] ) ) {
-
 			function add_cookie_submit_js() {
 				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
 
@@ -109,8 +108,157 @@ class Lins_Scroll_To_Top {
 			}
 
 			add_action( 'admin_enqueue_scripts', 'add_admin_submit_js' );
+			global $wpdb;
+			$table_name      = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$safe_sql        = $wpdb->prepare( "SELECT *
+											FROM `$table_name`
+											WHERE `settings_active` = %d AND `uuid` = %s ORDER BY `database_timestamp` ASC", array( true, $_COOKIE['loadedUuid'] ) );
+			$selected_preset = $wpdb->get_results( $safe_sql );
+			//var_dump( $selected_preset ); 
+			//die;
 
-			update_option( 'lins_scroll_loaded_preset', 'uuid' );
+			$presetChangesEqual = true;
+
+			if ( $selected_preset[0]->arrow_fill !== ltrim( strtoupper( get_option( 'lins_scroll_arrow_fill' ) ), '#' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_opacity !== get_option( 'lins_scroll_arrow_opacity' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_bg !== ltrim( strtoupper( get_option( 'lins_scroll_arrow_color' ) ), '#' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_opacity_hover !== get_option( 'lins_scroll_arrow_opacity_hover' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_bg_hover !== ltrim( strtoupper( get_option( 'lins_scroll_arrow_color_hover' ) ), '#' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_bg_size !== get_option( 'lins_scroll_bg_size' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_bg_size_lg !== get_option( 'lins_scroll_bg_size_lg' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_bg_size_md !== get_option( 'lins_scroll_bg_size_md' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_bg_size_sm !== get_option( 'lins_scroll_bg_size_sm' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_size !== get_option( 'lins_scroll_arrow_size' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_margin !== get_option( 'lins_scroll_arrow_margin' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_margin_lg !== get_option( 'lins_scroll_arrow_margin_lg' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_margin_md !== get_option( 'lins_scroll_arrow_margin_md' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_margin_sm !== get_option( 'lins_scroll_arrow_margin_sm' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_translate !== get_option( 'lins_scroll_arrow_translate' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_shadow_height !== get_option( 'lins_scroll_bg_height' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_shadow_height_lg !== get_option( 'lins_scroll_bg_height_lg' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_shadow_height_md !== get_option( 'lins_scroll_bg_height_md' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_shadow_height_sm !== get_option( 'lins_scroll_bg_height_sm' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_shadow_color !== ltrim( strtoupper( get_option( 'lins_scroll_bg_color' ) ), '#' ) )
+				$presetChangesEqual = false;
+
+			if ( $selected_preset[0]->arrow_shadow_opacity !== get_option( 'lins_scroll_bg_opacity' ) )
+				$presetChangesEqual = false;
+
+			if ( $presetChangesEqual ) {
+
+				update_option( 'lins_scroll_loaded_preset', $_COOKIE['loadedUuid'] );
+				function add_admin_onsave_load_preset() {
+					if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
+
+						$plugin_url = plugin_dir_url( __FILE__ );
+
+
+						wp_enqueue_script( 'add_admin_onsave_load_preset',
+							$plugin_url . 'script/load-preset.js',
+							array(),
+							'1.0.0',
+							array(
+								'strategy' => 'defer',
+							)
+						);
+					}
+				}
+
+				add_action( 'admin_enqueue_scripts', 'add_admin_onsave_load_preset' );
+
+			} else {
+				update_option( 'lins_scroll_loaded_preset', false );
+			}
+		}
+
+		if ( get_option( 'lins_scroll_loaded_preset' ) ) {
+
+			// loadPreset cookie uuid
+
+			function add_admin_load_preset_previous() {
+				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
+
+					$plugin_url = plugin_dir_url( __FILE__ );
+
+					wp_enqueue_script( 'add_admin_load_preset_previous',
+						$plugin_url . 'script/cookies.js',
+						array(),
+						'1.0.0',
+						array(
+							'strategy' => 'defer',
+						)
+					);
+
+					wp_enqueue_script( 'add_admin_load_preset_previous',
+						$plugin_url . 'script/admin.js',
+						array(),
+						'1.0.0',
+						array(
+							'strategy' => 'defer',
+						)
+					);
+				}
+			}
+
+			add_action( 'admin_enqueue_scripts', 'add_admin_load_preset_previous' );
+
+
+			function add_admin_load_preset_js() {
+				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
+
+					$plugin_url = plugin_dir_url( __FILE__ );
+
+					wp_enqueue_script( 'add_admin_load_preset_js',
+						$plugin_url . 'script/load-preset.js',
+						array(),
+						'1.0.0',
+						array(
+							'strategy' => 'defer',
+						)
+					);
+				}
+			}
+
+			//add_action( 'admin_enqueue_scripts', 'add_admin_load_preset_js' );
+
 		}
 
 		function get_settings_css() {
@@ -236,7 +384,6 @@ class Lins_Scroll_To_Top {
 				$preset['scrollArrowBgHover'] = sanitize_hex_db( $preset['scrollArrowBgHover'] );
 				if ( $preset['scrollArrowBgHover'] === false ) {
 					$errors[] = 'Hex Code Arrow Background Hover Wrong (Error 706)';
-
 				}
 
 				if ( ! is_int( (int) $preset['scrollArrowBgSize'] ) ) {
@@ -245,7 +392,6 @@ class Lins_Scroll_To_Top {
 
 				if ( ! is_int( (int) $preset['scrollArrowBgSizeLg'] ) ) {
 					$errors[] = 'Arrow Background Size LG Wrong (Error 708)';
-
 				}
 
 				if ( ! is_int( (int) $preset['scrollArrowBgSizeMd'] ) ) {
@@ -698,22 +844,6 @@ class Lins_Scroll_To_Top {
 		}
 
 		add_action( 'wp_enqueue_scripts', 'add_css' );
-
-		function settings_css() {
-			wp_enqueue_style( 'settings_css', get_template_directory_uri() . '/css/lins-scroll-arrow-settings.css', array(), '1.0.0', 'all' );
-			$custom_css = get_settings_css();
-			wp_add_inline_style( 'settings_css', $custom_css );
-		}
-
-		add_action( 'wp_enqueue_scripts', 'settings_css' );
-
-		function admin_settings_css() {
-			wp_enqueue_style( 'admin_settings_css', get_template_directory_uri() . '/css/lins-scroll-arrow-settings-admin.css', array(), '1.0.0', 'all' );
-			$custom_css = get_settings_css();
-			wp_add_inline_style( 'admin_settings_css', $custom_css );
-		}
-
-		add_action( 'admin_enqueue_scripts', 'admin_settings_css' );
 
 
 		function render_html() {
@@ -1407,7 +1537,6 @@ class Lins_Scroll_To_Top {
 		//$sql        = "SELECT uuid, preset_name FROM $table_name WHERE settings_active = true ORDER BY database_timestamp ASC";
 		$query   = $wpdb->prepare( "SELECT `uuid`, `preset_name` FROM `$table_name` WHERE `settings_active` = %d ORDER BY `database_timestamp` ASC", true );
 		$results = $wpdb->get_results( $query );
-
 		?>
 		<div class="scroll-arrow" onclick="linsScrollToTop()">
 			<svg fill="#000000" width="100%" height="100%" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
