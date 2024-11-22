@@ -47,6 +47,9 @@ class Lins_Scroll_To_Top {
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'admin_init', array( $this, 'settings' ) );
 
+		add_action( 'wp_ajax_unlock_reload', 'unlock_reload' );
+		add_action( 'wp_ajax_nopriv_unlock_reload', 'unlock_reload' );
+
 		add_action( 'wp_ajax_remove_loaded_preset', 'remove_loaded_preset' );
 		add_action( 'wp_ajax_nopriv_remove_loaded_preset', 'remove_loaded_preset' );
 
@@ -151,8 +154,8 @@ class Lins_Scroll_To_Top {
 			return $presetChangesEqual;
 		}
 
-		if ( isset( $_GET['settings-updated'] ) && get_option( 'lins_scroll_loaded_preset' ) ) {
-			var_dump( $_COOKIE['loadedUuid'] );
+		if ( isset( $_GET['settings-updated'] ) && ! get_option( 'lins_scroll_lock_reload' ) ) {
+			//var_dump( $_COOKIE['loadedUuid'] );
 			//die;
 			function add_cookie_submit_js() {
 				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
@@ -265,6 +268,7 @@ class Lins_Scroll_To_Top {
 					add_action( 'admin_enqueue_scripts', 'add_admin_submit_alert_def_js' );
 
 				}
+				update_option( 'lins_scroll_lock_reload', true );
 			}
 		}
 
@@ -392,6 +396,9 @@ class Lins_Scroll_To_Top {
 				return substr( strtoupper( $input ), 1 );
 			}
 			return false;
+		}
+		function unlock_reload() {
+			update_option( 'lins_scroll_lock_reload', false );
 		}
 
 		function remove_loaded_preset() {
@@ -1129,7 +1136,9 @@ class Lins_Scroll_To_Top {
 		add_settings_field( 'lins_scroll_bg_opacity', $scrollplugin_21_title, array( $this, 'bg_opacity_html' ), 'lins-scroll-to-top-settings', 'scrollplugin_21' );
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_opacity', array( 'sanitize_callback' => array( $this, 'sanitize_bg_opacity' ), 'default' => BG_OPACITY_DEF ) );
 
-		add_option( 'lins_scroll_loaded_preset' );
+		add_option( 'lins_scroll_loaded_preset', false );
+		add_option( 'lins_scroll_lock_reload' );
+
 	}
 
 	// Sanitzing

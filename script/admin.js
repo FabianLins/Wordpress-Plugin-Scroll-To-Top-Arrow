@@ -671,6 +671,14 @@ function linsScrollLoadPreset() {
     const selectElem = document.querySelector('#select-preset');
     document.cookie = `loadedUuid=${selectElem.value}`;
     const currUuid = getCookie('loadedUuid');
+    jQuery.ajax({
+        type: 'post',
+        url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+        dataType: 'json',
+        data: {
+            action: 'unlock_reload'
+        }
+    });
     //alert(currUuid);
     //console.log(presetName);
     //console.log(currUuid)
