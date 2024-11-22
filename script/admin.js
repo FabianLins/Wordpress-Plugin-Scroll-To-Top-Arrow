@@ -1,3 +1,39 @@
+function linsScrollReloadLoadedPreset() {
+    jQuery.ajax({
+        type: 'post',
+        url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+        dataType: 'json',
+        data: {
+            action: 'reload_preset_select'
+        },
+        complete: function (repsonse) {
+            if (!repsonse.responseText) {
+                document.querySelector('.alert-boxes').innerHTML +=
+                    `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
+                        <p>
+                            <strong>
+                                The loaded presets could not be displayed. (Error 700)
+                            </strong>
+                        </p>
+                    </div>`;
+            }
+            else {
+                repsonse.responseText = JSON.parse(repsonse.responseText);
+                document.querySelector('#remove-preset').innerHTML = '';
+                const currUuid = getCookie('loadedUuid');
+                repsonse.responseText.forEach(currPreset => {
+                    //console.log(currPreset);
+                    const value = currPreset.uuid;
+                    const name = currPreset.preset_name;
+                    if (value === currUuid) {
+                        document.querySelector('.preset-name').innerText = name;
+                    }
+                });
+            }
+        }
+    });
+}
+
 function linsScrollReloadRemoveSelect() {
     jQuery.ajax({
         type: 'post',
@@ -136,7 +172,8 @@ function linsScrollUpdatePreset() {
 
     const scrollBgOpacity = document.querySelector('[name="lins_scroll_bg_opacity"]');
     //console.log(scrollBgOpacity);
-    currUuid = getCookie('loadedUuid');
+
+    const currUuid = getCookie('loadedUuid');
     myPreset = {
         uuid: currUuid,
         scrollArrowFill: scrollArrowFill.value,
@@ -213,15 +250,32 @@ function linsScrollUpdatePreset() {
                 linsScrollPresetApply();
                 linsScrollReloadPresetSelect();
                 linsScrollReloadRemoveSelect();
+                linsScrollReloadLoadedPreset();
             }
         }
     });
 
 }
 
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
 function linsScrollEditPreset() {
     const editPresetName = document.querySelector('[name="lins_scroll_preset_edit"]').value;
-    currUuid = getCookie('currUuid');
+    const currUuid = getCookie('loadedUuid');
     newName = {
         uuid: currUuid,
         newName: editPresetName,
@@ -235,7 +289,7 @@ function linsScrollEditPreset() {
             ajax_data: newName
         },
         complete: function (response) {
-            //console.log((response.responseText));
+            console.log((response.responseText));
             if (response.responseText) {
                 document.querySelector('.alert-boxes').innerHTML +=
                     `<div id="setting-error-settings_updated" class="notice notice-error settings-error lins-scroll-arrow-alert">
@@ -337,6 +391,13 @@ function linsScrollRemoveConfirm() {
                 if (document.querySelector('.preset-name').innerHTML === removeSelection) {
                     document.querySelector('.preset-name').innerHTML = 'No preset selected.'
                     deleteCookie('loadedUuid');
+                    jQuery.ajax({
+                        type: 'post',
+                        url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+                        data: {
+                            action: 'remove_loaded_preset'
+                        }
+                    });
                 }
             }
             linsScrollTopCloseModal();
@@ -610,7 +671,12 @@ function linsScrollLoadPreset() {
     const selectElem = document.querySelector('#select-preset');
     document.cookie = `loadedUuid=${selectElem.value}`;
     const currUuid = getCookie('loadedUuid');
+    //alert(currUuid);
     //console.log(presetName);
     //console.log(currUuid)
     linsScrollLoadPresetAjax(currUuid);
+}
+
+function linsScrollSaveChanges() {
+    document.querySelector('#submit').click();
 }

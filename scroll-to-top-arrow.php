@@ -47,6 +47,9 @@ class Lins_Scroll_To_Top {
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'admin_init', array( $this, 'settings' ) );
 
+		add_action( 'wp_ajax_remove_loaded_preset', 'remove_loaded_preset' );
+		add_action( 'wp_ajax_nopriv_remove_loaded_preset', 'remove_loaded_preset' );
+
 		add_action( 'wp_ajax_update_preset', 'update_preset' );
 		add_action( 'wp_ajax_nopriv_update_preset', 'update_preset' );
 
@@ -148,7 +151,9 @@ class Lins_Scroll_To_Top {
 			return $presetChangesEqual;
 		}
 
-		if ( isset( $_GET['settings-updated'] ) ) {
+		if ( isset( $_GET['settings-updated'] ) && get_option( 'lins_scroll_loaded_preset' ) ) {
+			var_dump( $_COOKIE['loadedUuid'] );
+			//die;
 			function add_cookie_submit_js() {
 				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
 
@@ -166,7 +171,6 @@ class Lins_Scroll_To_Top {
 			}
 
 			add_action( 'admin_enqueue_scripts', 'add_cookie_submit_js' );
-
 
 			function add_admin_submit_js() {
 				if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
@@ -196,6 +200,14 @@ class Lins_Scroll_To_Top {
 
 						$plugin_url = plugin_dir_url( __FILE__ );
 
+						wp_enqueue_script( 'add_admin_onsave_load_preset_cookies',
+							$plugin_url . 'script/cookies.js',
+							array(),
+							'1.0.0',
+							array(
+								'strategy' => 'defer',
+							)
+						);
 
 						wp_enqueue_script( 'add_admin_onsave_load_preset',
 							$plugin_url . 'script/load-preset.js',
@@ -211,7 +223,48 @@ class Lins_Scroll_To_Top {
 				add_action( 'admin_enqueue_scripts', 'add_admin_onsave_load_preset' );
 
 			} else {
-				update_option( 'lins_scroll_loaded_preset', false );
+				if ( $_COOKIE['loadedUuid'] !== BLANK_UUID ) {
+					//'Setting was saved successfully. However, your settings are different from 'latest preset'. Do you want to save the unsaved changes to 'the latest preset'?
+					function add_admin_submit_alert_js() {
+						if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
+
+							$plugin_url = plugin_dir_url( __FILE__ );
+
+							wp_enqueue_script( 'add_admin_submit_alert_js',
+								$plugin_url . 'script/submit-alert.js',
+								array(),
+								'1.0.0',
+								array(
+									'strategy' => 'defer',
+								)
+							);
+						}
+					}
+
+					add_action( 'admin_enqueue_scripts', 'add_admin_submit_alert_js' );
+
+
+				} else {
+					//This setting is different from the default setting. Do you want to save this as a new preset? Modal: New name and save as preset. 
+					function add_admin_submit_alert_def_js() {
+						if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
+
+							$plugin_url = plugin_dir_url( __FILE__ );
+
+							wp_enqueue_script( 'add_admin_submit_alert_def_js',
+								$plugin_url . 'script/submit-alert-default.js',
+								array(),
+								'1.0.0',
+								array(
+									'strategy' => 'defer',
+								)
+							);
+						}
+					}
+
+					add_action( 'admin_enqueue_scripts', 'add_admin_submit_alert_def_js' );
+
+				}
 			}
 		}
 
@@ -226,6 +279,15 @@ class Lins_Scroll_To_Top {
 
 						$plugin_url = plugin_dir_url( __FILE__ );
 
+						wp_enqueue_script( 'add_admin_onload_load_preset_cookies',
+							$plugin_url . 'script/cookies.js',
+							array(),
+							'1.0.0',
+							array(
+								'strategy' => 'defer',
+							)
+						);
+
 						wp_enqueue_script( 'add_admin_onload_load_preset',
 							$plugin_url . 'script/load-preset.js',
 							array(),
@@ -239,8 +301,6 @@ class Lins_Scroll_To_Top {
 
 				add_action( 'admin_enqueue_scripts', 'add_admin_onload_load_preset' );
 
-			} else {
-				update_option( 'lins_scroll_loaded_preset', false );
 			}
 		}
 
@@ -312,8 +372,6 @@ class Lins_Scroll_To_Top {
 
 			return $custom_css;
 		}
-
-
 		function sanitize_opacity_db( $input ) {
 			$input = floatval( $input );
 			if ( is_float( $input ) ) {
@@ -334,6 +392,10 @@ class Lins_Scroll_To_Top {
 				return substr( strtoupper( $input ), 1 );
 			}
 			return false;
+		}
+
+		function remove_loaded_preset() {
+			update_option( 'lins_scroll_loaded_preset', false );
 		}
 
 		function update_preset() {
@@ -465,47 +527,38 @@ class Lins_Scroll_To_Top {
 					);
 					//var_dump( $sql_args );
 					$safe_sql       = $wpdb->prepare( "UPDATE `$table_name`
-															SET 
-																`arrow_fill` = %s,
-																`arrow_opacity` = %d,
-																`arrow_bg` = %s,
-																`arrow_opacity_hover` = %d,
-																`arrow_bg_hover` = %s,
-																`arrow_bg_size` = %d,
-																`arrow_bg_size_lg` = %d,
-																`arrow_bg_size_md` = %d,
-																`arrow_bg_size_sm` = %d,
-																`arrow_size` = %d,
-																`arrow_margin` = %d,
-																`arrow_margin_lg` = %d,
-																`arrow_margin_md` = %d,
-																`arrow_margin_sm` = %d,
-																`arrow_translate` = %d,
-																`arrow_shadow_height` = %d,
-																`arrow_shadow_height_lg` = %d,
-																`arrow_shadow_height_md` = %d,
-																`arrow_shadow_height_sm` = %d,
-																`arrow_shadow_color` = %s,
-																`arrow_shadow_opacity` = %d
-															WHERE `uuid` = %s AND `settings_active` = %d", $sql_args );
+														SET 
+															`arrow_fill` = %s,
+															`arrow_opacity` = %d,
+															`arrow_bg` = %s,
+															`arrow_opacity_hover` = %d,
+															`arrow_bg_hover` = %s,
+															`arrow_bg_size` = %d,
+															`arrow_bg_size_lg` = %d,
+															`arrow_bg_size_md` = %d,
+															`arrow_bg_size_sm` = %d,
+															`arrow_size` = %d,
+															`arrow_margin` = %d,
+															`arrow_margin_lg` = %d,
+															`arrow_margin_md` = %d,
+															`arrow_margin_sm` = %d,
+															`arrow_translate` = %d,
+															`arrow_shadow_height` = %d,
+															`arrow_shadow_height_lg` = %d,
+															`arrow_shadow_height_md` = %d,
+															`arrow_shadow_height_sm` = %d,
+															`arrow_shadow_color` = %s,
+															`arrow_shadow_opacity` = %d
+														WHERE `uuid` = %s AND `settings_active` = %d", $sql_args );
 					$updated_preset = $wpdb->query( $safe_sql );
 					//var_dump( $safe_sql );
+					//var_dump( 'lol' );
+					//var_dump( $safe_sql );
+					//echo json_encode( 0 );
+					//die;
 				}
-				die;
+				exit();
 			}
-		}
-
-		function reload_preset_select() {
-			global $wpdb;
-			$table_name  = $wpdb->prefix . 'lins_scroll_arrow_presets';
-			$safe_sql    = $wpdb->prepare( "SELECT `uuid`, `preset_name`
-												FROM `$table_name`
-												WHERE `settings_active` = %d ORDER BY `database_timestamp` ASC", array( true ) );
-			$all_presets = $wpdb->get_results( $safe_sql );
-			if ( $all_presets ) {
-				echo json_encode( $all_presets );
-			}
-			exit();
 		}
 
 		function reload_preset_select_remove() {
@@ -521,7 +574,18 @@ class Lins_Scroll_To_Top {
 			exit();
 		}
 
-
+		function reload_preset_select() {
+			global $wpdb;
+			$table_name  = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$safe_sql    = $wpdb->prepare( "SELECT `uuid`, `preset_name`
+											FROM `$table_name`
+											WHERE `settings_active` = %d ORDER BY `database_timestamp` ASC", array( true ) );
+			$all_presets = $wpdb->get_results( $safe_sql );
+			if ( $all_presets ) {
+				echo json_encode( $all_presets );
+			}
+			exit();
+		}
 
 		function load_preset() {
 			global $wpdb;
@@ -554,13 +618,16 @@ class Lins_Scroll_To_Top {
 		function edit_preset_name() {
 			global $wpdb;
 			$preset = $_POST['ajax_data'];
+			//var_dump( $preset );
 			if ( $preset['uuid'] !== BLANK_UUID ) {
 				$table_name       = $wpdb->prefix . 'lins_scroll_arrow_presets';
 				$safe_sql         = $wpdb->prepare( "UPDATE `$table_name`
-													SET `preset_name` = %s
-													WHERE `uuid` = %s", array( $preset['newName'], $preset['uuid'] ) );
+																					SET `preset_name` = %s
+																					WHERE `uuid` = %s AND `settings_active` = %d", array( $preset['newName'], $preset['uuid'], true ) );
 				$existing_presets = $wpdb->query( $safe_sql );
-				echo ( $existing_presets );
+				//var_dump( $safe_sql );
+				echo 'Name already exists. (Error 600) ';
+				//exit();
 			}
 			exit();
 		}
@@ -578,7 +645,6 @@ class Lins_Scroll_To_Top {
 			}
 			exit();
 		}
-
 
 		function save_preset() {
 			global $wpdb;
@@ -745,7 +811,6 @@ class Lins_Scroll_To_Top {
 			exit();
 		}
 
-
 		function add_admin_js() {
 			if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
 
@@ -781,7 +846,6 @@ class Lins_Scroll_To_Top {
 		}
 
 		add_action( 'admin_enqueue_scripts', 'add_cookie_js' );
-
 
 		function add_admin_js_modal() {
 			if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
@@ -1625,6 +1689,18 @@ class Lins_Scroll_To_Top {
 
 			</div>
 
+			<div class="save-new-def js-hide-alert">
+				<div class="button button-primary" onclick="linsScrollTopShowModal()">Save As Preset</div>
+			</div>
+
+			<div class="save-preset-changes js-hide-alert">
+				<div class="button button-primary update-save-preset-changes" onclick="linsScrollUpdatePreset()">Update Preset
+				</div>
+				<div class="button button-secondary" onclick="linsScrollTopShowModal()">Save As Preset</div>
+				<div class="button button-danger-outline" onclick="">Keep Unsaved Preset</div>
+			</div>
+
+
 			<h3>Presets</h3>
 			<div>
 				<?php
@@ -1643,13 +1719,15 @@ class Lins_Scroll_To_Top {
 			<div>
 				<button class="button button-primary load-preset-btn" onclick="linsScrollLoadPreset()">Load Preset</button>
 				<button class="button button-secondary edit-preset-btn" onclick="linsScrollTopEditAlert()"
-					style="display:none;">Edit Preset Name</button>
+					style="display:none;">Edit Name</button>
 				<button class="button button-secondary update-preset-btn" onclick="linsScrollUpdatePreset()" style="
 					display:none;">Update
 					Preset</button>
 
 				<button class="button button-danger-outline remove-preset-btn" onclick="linsScrollRemoveAlert()">Remove
 					Preset</button>
+				<button class="button button-success load-preset-btn" onclick="linsScrollSaveChanges()">Save Changes</button>
+
 			</div>
 			<div class="current-preset">
 				<h2>Loaded preset: <span class="preset-name">No preset selected.</span></h2>
@@ -1660,7 +1738,7 @@ class Lins_Scroll_To_Top {
 				do_settings_sections( 'lins-scroll-to-top-settings' );
 				submit_button();
 				?>
-				<div class="button button-secondary" onclick="linsScrollTopShowModal()">Save As Preset</div>
+				<div class="button button-primary" onclick="linsScrollTopShowModal()">Save As Preset</div>
 
 			</form>
 
