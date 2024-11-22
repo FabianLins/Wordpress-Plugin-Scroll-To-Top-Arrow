@@ -1,4 +1,5 @@
 document.querySelector('.alert-boxes').classList.add('js-hide-alert');
+console.log(getCookie('loadedUuid'));
 setTimeout(() => {
     const currUuid = getCookie('loadedUuid');
     linsScrollLoadPresetAjax(currUuid);
