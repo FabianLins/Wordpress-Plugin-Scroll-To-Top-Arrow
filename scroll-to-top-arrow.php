@@ -83,6 +83,20 @@ class Lins_Scroll_To_Top {
 		add_action( 'wp_ajax_reload_preset_select_remove', 'reload_preset_select_remove' );
 		add_action( 'wp_ajax_nopriv_reload_preset_select_remove', 'reload_preset_select_remove' );
 
+		function get_svg() {
+			$svg        = '<svg width="100%" height="100%" viewBox="0 0 330 330" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" xmlns:serif="http://www.serif.com/" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+								<g id="XMLID_225_" transform="matrix(-1,-1.22465e-16,1.22465e-16,-1,330.001,330)">
+									<path d="M325.607,79.393C319.75,73.536 310.252,73.535 304.394,79.394L165.004,218.787L25.607,79.393C19.75,73.536 10.252,73.535 4.394,79.394C-1.464,85.252 -1.464,94.749 4.394,100.607L154.398,250.607C157.211,253.42 161.026,255 165.004,255C168.982,255 172.798,253.419 175.61,250.606L325.606,100.606C331.465,94.749 331.465,85.251 325.607,79.393Z" style="fill-rule:nonzero;"/>
+								</g>
+							</svg>';
+			$plugin_url = plugin_dir_url( __FILE__ );
+			$svg_file   = $plugin_url . 'assets/icon.svg';
+			if ( file_get_contents( $svg_file ) ) {
+				$svg = file_get_contents( $svg_file );
+			}
+			return $svg;
+		}
+
 		function presetSavedChangesEqual() {
 			global $wpdb;
 			$table_name      = $wpdb->prefix . 'lins_scroll_arrow_presets';
@@ -358,7 +372,7 @@ class Lins_Scroll_To_Top {
 
 			$custom_css .= ".scroll-arrow:hover, .scroll-arrow:focus-within { background: rgba( {$r_hover} , {$g_hover} , {$b_hover} , {$opacity_hover} ); }";
 			$custom_css .= ".scroll-arrow svg { width: {$arrow_size}% ;}";
-			$custom_css .= ".scroll-arrow:hover svg, .scroll-arrow:focus-within svg { transform: rotate(180deg) translateY({$translate_size}px); }";
+			$custom_css .= ".scroll-arrow:hover svg, .scroll-arrow:focus-within svg { transform: translateY(-{$translate_size}px); }";
 
 
 			$custom_css .= ".scroll-bottom-fade { height:{$bg_height}px; }";
@@ -935,16 +949,13 @@ class Lins_Scroll_To_Top {
 
 
 		function render_html() {
+			$svg = get_svg();
 			echo
-				'<div class="scroll-arrow" onclick="linsScrollToTop()">
-					<svg fill="#000000" width="100%" height="100%" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 330 330" xml:space="preserve">
-					<path id="XMLID_225_" d="M325.607,79.393c-5.857-5.857-15.355-5.858-21.213,0.001l-139.39,139.393L25.607,79.393
-						c-5.857-5.857-15.355-5.858-21.213,0.001c-5.858,5.858-5.858,15.355,0,21.213l150.004,150c2.813,2.813,6.628,4.393,10.606,4.393
-						s7.794-1.581,10.606-4.394l149.996-150C331.465,94.749,331.465,85.251,325.607,79.393z"></path>
-					</svg>
+				"<div class='scroll-arrow' onclick='linsScrollToTop()'>
+					{$svg}
 				</div>
-				<div class="scroll-bottom-fade">
-				</div>';
+				<div class='scroll-bottom-fade'>
+				</div>";
 		}
 
 		add_action( 'wp_footer', 'render_html' );
@@ -1631,12 +1642,10 @@ class Lins_Scroll_To_Top {
 		$results = $wpdb->get_results( $query );
 		?>
 		<div class="scroll-arrow" onclick="linsScrollToTop()">
-			<svg fill="#000000" width="100%" height="100%" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
-				xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 330 330" xml:space="preserve">
-				<path id="XMLID_225_" d="M325.607,79.393c-5.857-5.857-15.355-5.858-21.213,0.001l-139.39,139.393L25.607,79.393
-						c-5.857-5.857-15.355-5.858-21.213,0.001c-5.858,5.858-5.858,15.355,0,21.213l150.004,150c2.813,2.813,6.628,4.393,10.606,4.393
-						s7.794-1.581,10.606-4.394l149.996-150C331.465,94.749,331.465,85.251,325.607,79.393z"></path>
-			</svg>
+			<?php
+			$svg = get_svg();
+			echo $svg;
+			?>
 		</div>
 		<div class="scroll-bottom-fade">
 		</div>
