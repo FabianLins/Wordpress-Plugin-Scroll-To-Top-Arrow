@@ -1,9 +1,9 @@
 //alert(getCookie('loadedUuid'));
 document.querySelector('.alert-boxes').innerHTML +=
-    `<div id="setting-error-settings_updated" class="notice notice-warning settings-error lins-scroll-arrow-alert">
+    `<div class="notice notice-warning settings-error lins-scroll-arrow-alert lins-scroll-new-def-alert">
         <p>
             <strong>
-					This setting is different from the Default Preset. Do you want to save this as a new preset?
+					This setting is different from the <b>'Default Preset'</b>. Do you want to save this as a new preset?
             </strong>
         </p>
     </div>`;

@@ -12,7 +12,9 @@ setTimeout(() => {
         }
     }
     setTimeout(() => {
-        document.querySelector('.js-loaded-successfully').classList.add('js-hide-alert');
         document.querySelector('.alert-boxes').classList.remove('js-hide-alert');
+        setTimeout(() => {
+            document.querySelector('.js-loaded-successfully').classList.add('js-hide-alert');
+        }, 50);
     }, 50);
 }, 50);
