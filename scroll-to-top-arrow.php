@@ -752,7 +752,6 @@ class Lins_Scroll_To_Top {
 			$preset['scrollArrowBgHover'] = sanitize_hex_db( $preset['scrollArrowBgHover'] );
 			if ( $preset['scrollArrowBgHover'] === false ) {
 				$errors[] = 'Hex Code Arrow Background Hover Wrong (Error 106)';
-
 			}
 
 			if ( ! is_int( (int) $preset['scrollArrowBgSize'] ) ) {
@@ -761,7 +760,6 @@ class Lins_Scroll_To_Top {
 
 			if ( ! is_int( (int) $preset['scrollArrowBgSizeLg'] ) ) {
 				$errors[] = 'Arrow Background Size LG Wrong (Error 108)';
-
 			}
 
 			if ( ! is_int( (int) $preset['scrollArrowBgSizeMd'] ) ) {
@@ -832,9 +830,10 @@ class Lins_Scroll_To_Top {
 					$query   = $wpdb->prepare( "SELECT `uuid` FROM `$table_name` WHERE `uuid` = %s", $uuid );
 					$results = $wpdb->get_results( $query );
 				}
+				setcookie( 'new_uuid', $uuid );
 
 				$form_data = array(
-					'uuid'                   => UUID::v4(),
+					'uuid'                   => $uuid,
 					'preset_name'            => $preset['presetName'],
 					'arrow_fill'             => $preset['scrollArrowFill'],
 					'arrow_opacity'          => $preset['scrollArrowOpacity'],

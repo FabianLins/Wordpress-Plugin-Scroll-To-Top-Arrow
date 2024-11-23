@@ -1,3 +1,12 @@
+function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+
 function linsScrollReloadLoadedPreset() {
     jQuery.ajax({
         type: 'post',
@@ -251,6 +260,7 @@ function linsScrollUpdatePreset() {
                 linsScrollReloadPresetSelect();
                 linsScrollReloadRemoveSelect();
                 linsScrollReloadLoadedPreset();
+                linsScrollLoadPresetAjax(currUuid);
             }
         }
     });
@@ -565,13 +575,17 @@ function linsScrollTopSavePreset() {
                 linsScrollLoadPreset();
                 setTimeout(() => {
                     document.querySelector('.alert-boxes').innerHTML = `<div class="notice notice-success settings-error lins-scroll-arrow-alert">
-                        <p>
-                            <strong>
-                                Preset saved and loaded successfully! To apply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
-                            </strong>
-                        </p>
-                    </div>`;
+                                                                            <p>
+                                                                                <strong>
+                                                                                    Preset saved and loaded successfully! To apply the preset, click on <span class="js-save-changes-to-page link-look">"Save Changes" at the bottom of the page or here</span>.
+                                                                                </strong>
+                                                                            </p>
+                                                                        </div>`;
                 }, 50);
+                const newUuid = getCookie('new_uuid');
+                //linsScrollLoadPresetAjax(getCookie('new_uuid'));
+                document.cookie = `loadedUuid=${newUuid}`;
+                //console.log(newUuid);
             }
             linsScrollTopCloseModal();
             window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -594,36 +608,163 @@ function linsScrollLoadPresetAjax(currUuid) {
         },
         complete: function (presetSettings) {
             //console.log(presetSettings.responseText);
-            const presetObject = JSON.parse(presetSettings.responseText);
+            const presetObj = JSON.parse(presetSettings.responseText);
             try {
-                document.querySelector('.preset-name').innerHTML = presetObject.preset_name;
-                document.querySelector('.old-preset-name').innerHTML = presetObject.preset_name;
+                let r = '';
+                let g = '';
+                let b = '';
+                let a = '';
 
-                //console.log(presetObject);
+                const arrowBgEl = document.querySelector('div.scroll-arrow');
+                const svgEl = document.querySelector('div.scroll-arrow > svg');
+                const bottomFadeEl = document.querySelector('div.scroll-bottom-fade');
+
+                document.querySelector('.preset-name').innerHTML = presetObj.preset_name;
+                document.querySelector('.old-preset-name').innerHTML = presetObj.preset_name;
+                //console.log(presetObj);
                 //document.querySelector('.preset-name').innerHTML = presetSettings.responseText;
                 //document.querySelector('[name="lins_scroll_arrow_fill"]').value = '#FFFFFF';
-                jQuery('[name="lins_scroll_arrow_fill"]').iris('color', `#${presetObject.arrow_fill}`);
-                document.querySelector('[name="lins_scroll_arrow_opacity"]').value = presetObject.arrow_opacity;
-                //console.log(presetObject.arrow_opacity);
-                jQuery('[name="lins_scroll_arrow_color"]').iris('color', `#${presetObject.arrow_bg}`);
-                document.querySelector('[name="lins_scroll_arrow_opacity_hover"]').value = presetObject.arrow_opacity_hover;
-                jQuery('[name="lins_scroll_arrow_color_hover"]').iris('color', `#${presetObject.arrow_bg_hover}`);
-                document.querySelector('[name="lins_scroll_bg_size"]').value = presetObject.arrow_bg_size;
-                document.querySelector('[name="lins_scroll_bg_size_lg"]').value = (presetObject.arrow_bg_size_lg);
-                document.querySelector('[name="lins_scroll_bg_size_md"]').value = (presetObject.arrow_bg_size_md);
-                document.querySelector('[name="lins_scroll_bg_size_sm"]').value = (presetObject.arrow_bg_size_sm);
-                document.querySelector('[name="lins_scroll_arrow_size"]').value = (presetObject.arrow_size);
-                document.querySelector('[name="lins_scroll_arrow_margin"]').value = (presetObject.arrow_margin);
-                document.querySelector('[name="lins_scroll_arrow_margin_lg"]').value = (presetObject.arrow_margin_lg);
-                document.querySelector('[name="lins_scroll_arrow_margin_md"]').value = (presetObject.arrow_margin_md);
-                document.querySelector('[name="lins_scroll_arrow_margin_sm"]').value = (presetObject.arrow_margin_sm);
-                document.querySelector('[name="lins_scroll_arrow_translate"]').value = (presetObject.arrow_translate);
-                document.querySelector('[name="lins_scroll_bg_height"]').value = (presetObject.arrow_shadow_height);
-                document.querySelector('[name="lins_scroll_bg_height_lg"]').value = (presetObject.arrow_shadow_height_lg);
-                document.querySelector('[name="lins_scroll_bg_height_md"]').value = (presetObject.arrow_shadow_height_md);
-                document.querySelector('[name="lins_scroll_bg_height_sm"]').value = (presetObject.arrow_shadow_height_sm);
-                jQuery('[name="lins_scroll_bg_color"]').iris('color', `#${presetObject.arrow_shadow_color}`);
-                document.querySelector('[name="lins_scroll_bg_opacity"]').value = (presetObject.arrow_shadow_opacity);
+                jQuery('[name="lins_scroll_arrow_fill"]').iris('color', `#${presetObj.arrow_fill}`);
+                svgEl.style.fill = `#${presetObj.arrow_fill}`;
+
+                document.querySelector('[name="lins_scroll_arrow_opacity"]').value = presetObj.arrow_opacity;
+
+                jQuery('[name="lins_scroll_arrow_color"]').iris('color', `#${presetObj.arrow_bg}`);
+
+                presetObj.arrow_opacity;
+                const arrowBgRgb = hexToRgb(`#${presetObj.arrow_bg}`);
+                const arrowBgHoverRgb = hexToRgb(`#${presetObj.arrow_bg_hover}`);
+                const shadowRgb = hexToRgb(`#${presetObj.arrow_shadow_color}`);
+
+                r = arrowBgRgb.r;
+                g = arrowBgRgb.g;
+                b = arrowBgRgb.b;
+                a = presetObj.arrow_opacity;
+
+                //arrowBgEl.style.background = `rgba(${r}, ${g}, ${b}, ${a})`;
+
+                document.querySelector('[name="lins_scroll_arrow_opacity_hover"]').value = presetObj.arrow_opacity_hover;
+
+                arrowBgEl.addEventListener("mouseout", () => {
+                    r = arrowBgRgb.r;
+                    g = arrowBgRgb.g;
+                    b = arrowBgRgb.b;
+                    a = presetObj.arrow_opacity;
+                    arrowBgEl.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+                });
+
+                jQuery('[name="lins_scroll_arrow_color_hover"]').iris('color', `#${presetObj.arrow_bg_hover}`);
+
+                arrowBgEl.addEventListener("mouseover", () => {
+                    r = arrowBgHoverRgb.r;
+                    g = arrowBgHoverRgb.g;
+                    b = arrowBgHoverRgb.b;
+                    a = presetObj.arrow_opacity_hover;
+                    arrowBgEl.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${a})`;
+                });
+
+                document.querySelector('[name="lins_scroll_bg_size"]').value = presetObj.arrow_bg_size;
+
+                document.querySelector('[name="lins_scroll_bg_size_lg"]').value = (presetObj.arrow_bg_size_lg);
+
+
+                const mqDesktop = window.matchMedia('(min-width: 993px)');
+                const mqLg = window.matchMedia('(min-width: 769px) and (max-width: 992px)');
+                const mqMd = window.matchMedia('(min-width: 577px) and (max-width: 768px)');
+                const mqSm = window.matchMedia('(max-width: 576px)');
+
+                //Desktop
+                function scrollDesktopView(e) {
+                    if (e.matches) {
+                        console.log('Desktop');
+                        arrowBgEl.style.width = `${presetObj.arrow_bg_size}px`;
+                        arrowBgEl.style.height = `${presetObj.arrow_bg_size}px`;
+                        arrowBgEl.style.right = `${presetObj.arrow_margin}px`;
+                        arrowBgEl.style.bottom = `${presetObj.arrow_margin}px`;
+                        bottomFadeEl.style.height = `${presetObj.arrow_shadow_height}px`;
+                    }
+                }
+
+                mqDesktop.addEventListener('change', scrollDesktopView);
+
+                scrollDesktopView(mqDesktop);
+
+                //Large
+                function scrollLgView(e) {
+                    if (e.matches) {
+                        console.log('Large');
+                        arrowBgEl.style.width = `${presetObj.arrow_bg_size_lg}px`;
+                        arrowBgEl.style.height = `${presetObj.arrow_bg_size_lg}px`;
+                        arrowBgEl.style.right = `${presetObj.arrow_margin_lg}px`;
+                        arrowBgEl.style.bottom = `${presetObj.arrow_margin_lg}px`;
+                        bottomFadeEl.style.height = `${presetObj.arrow_shadow_height_lg}px`;
+                    }
+                }
+
+                mqLg.addEventListener('change', scrollLgView);
+
+                scrollLgView(mqLg);
+
+                //Medium
+                function scrollMdView(e) {
+                    if (e.matches) {
+                        console.log('Medium');
+                        arrowBgEl.style.width = `${presetObj.arrow_bg_size_md}px`;
+                        arrowBgEl.style.height = `${presetObj.arrow_bg_size_md}px`;
+                        arrowBgEl.style.right = `${presetObj.arrow_margin_md}px`;
+                        arrowBgEl.style.bottom = `${presetObj.arrow_margin_md}px`;
+                        bottomFadeEl.style.height = `${presetObj.arrow_shadow_height_md}px`;
+                    }
+                }
+
+                mqMd.addEventListener('change', scrollMdView);
+
+                scrollMdView(mqMd);
+
+                //Small
+                function scrollSmView(e) {
+                    if (e.matches) {
+                        console.log('Small');
+                        arrowBgEl.style.width = `${presetObj.arrow_bg_size_sm}px`;
+                        arrowBgEl.style.height = `${presetObj.arrow_bg_size_sm}px`;
+                        arrowBgEl.style.right = `${presetObj.arrow_margin_sm}px`;
+                        arrowBgEl.style.bottom = `${presetObj.arrow_margin_sm}px`;
+                        bottomFadeEl.style.height = `${presetObj.arrow_shadow_height_sm}px`;
+                    }
+                }
+
+                mqSm.addEventListener('change', scrollSmView);
+
+                scrollSmView(mqSm);
+
+                document.querySelector('[name="lins_scroll_bg_size_md"]').value = (presetObj.arrow_bg_size_md);
+                document.querySelector('[name="lins_scroll_bg_size_sm"]').value = (presetObj.arrow_bg_size_sm);
+
+                document.querySelector('[name="lins_scroll_arrow_size"]').value = (presetObj.arrow_size);
+
+                svgEl.style.width = `${presetObj.arrow_size}%`;
+
+                document.querySelector('[name="lins_scroll_arrow_margin"]').value = (presetObj.arrow_margin);
+                document.querySelector('[name="lins_scroll_arrow_margin_lg"]').value = (presetObj.arrow_margin_lg);
+                document.querySelector('[name="lins_scroll_arrow_margin_md"]').value = (presetObj.arrow_margin_md);
+                document.querySelector('[name="lins_scroll_arrow_margin_sm"]').value = (presetObj.arrow_margin_sm);
+
+                document.querySelector('[name="lins_scroll_arrow_translate"]').value = (presetObj.arrow_translate);
+
+                document.querySelector('[name="lins_scroll_bg_height"]').value = (presetObj.arrow_shadow_height);
+                document.querySelector('[name="lins_scroll_bg_height_lg"]').value = (presetObj.arrow_shadow_height_lg);
+                document.querySelector('[name="lins_scroll_bg_height_md"]').value = (presetObj.arrow_shadow_height_md);
+                document.querySelector('[name="lins_scroll_bg_height_sm"]').value = (presetObj.arrow_shadow_height_sm);
+
+                jQuery('[name="lins_scroll_bg_color"]').iris('color', `#${presetObj.arrow_shadow_color}`);
+                document.querySelector('[name="lins_scroll_bg_opacity"]').value = (presetObj.arrow_shadow_opacity);
+
+                r = shadowRgb.r;
+                g = shadowRgb.g;
+                b = shadowRgb.b;
+                a = presetObj.arrow_shadow_opacity;
+
+                bottomFadeEl.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${a})`;
 
                 const alerts = document.querySelectorAll('.lins-scroll-arrow-alert');
                 alerts.forEach(currAlert => {
