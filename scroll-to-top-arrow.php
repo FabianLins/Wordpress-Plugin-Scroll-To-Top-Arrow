@@ -47,6 +47,12 @@ class Lins_Scroll_To_Top {
 		add_action( 'admin_menu', array( $this, 'admin_page' ) );
 		add_action( 'admin_init', array( $this, 'settings' ) );
 
+		add_action( 'wp_ajax_get_preset_name', 'get_preset_name' );
+		add_action( 'wp_ajax_nopriv_get_preset_name', 'get_preset_name' );
+
+		add_action( 'wp_ajax_get_loaded_uuid', 'get_loaded_uuid' );
+		add_action( 'wp_ajax_nopriv_get_loaded_uuid', 'get_loaded_uuid' );
+
 		add_action( 'wp_ajax_unlock_reload', 'unlock_reload' );
 		add_action( 'wp_ajax_nopriv_unlock_reload', 'unlock_reload' );
 
@@ -85,73 +91,71 @@ class Lins_Scroll_To_Top {
 												WHERE `settings_active` = %d AND `uuid` = %s ORDER BY `database_timestamp` ASC", array( true, $_COOKIE['loadedUuid'] ) );
 			$selected_preset = $wpdb->get_results( $safe_sql );
 			//var_dump( $selected_preset ); 
-			//die;
 
-			$presetChangesEqual = true;
-
-			if ( $selected_preset[0]->arrow_fill !== ltrim( strtoupper( get_option( 'lins_scroll_arrow_fill' ) ), '#' ) )
-				$presetChangesEqual = false;
+			if ( strtoupper( $selected_preset[0]->arrow_fill ) !== ltrim( strtoupper( get_option( 'lins_scroll_arrow_fill' ) ), '#' ) )
+				return false;
 
 			if ( $selected_preset[0]->arrow_opacity !== get_option( 'lins_scroll_arrow_opacity' ) )
-				$presetChangesEqual = false;
+				return false;
 
-			if ( $selected_preset[0]->arrow_bg !== ltrim( strtoupper( get_option( 'lins_scroll_arrow_color' ) ), '#' ) )
-				$presetChangesEqual = false;
+			if ( strtoupper( $selected_preset[0]->arrow_bg ) !== ltrim( strtoupper( get_option( 'lins_scroll_arrow_color' ) ), '#' ) )
+				return false;
 
 			if ( $selected_preset[0]->arrow_opacity_hover !== get_option( 'lins_scroll_arrow_opacity_hover' ) )
-				$presetChangesEqual = false;
+				return false;
 
-			if ( $selected_preset[0]->arrow_bg_hover !== ltrim( strtoupper( get_option( 'lins_scroll_arrow_color_hover' ) ), '#' ) )
-				$presetChangesEqual = false;
+			if ( strtoupper( $selected_preset[0]->arrow_bg_hover ) !== ltrim( strtoupper( get_option( 'lins_scroll_arrow_color_hover' ) ), '#' ) )
+				return false;
 
 			if ( $selected_preset[0]->arrow_bg_size !== get_option( 'lins_scroll_bg_size' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_bg_size_lg !== get_option( 'lins_scroll_bg_size_lg' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_bg_size_md !== get_option( 'lins_scroll_bg_size_md' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_bg_size_sm !== get_option( 'lins_scroll_bg_size_sm' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_size !== get_option( 'lins_scroll_arrow_size' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_margin !== get_option( 'lins_scroll_arrow_margin' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_margin_lg !== get_option( 'lins_scroll_arrow_margin_lg' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_margin_md !== get_option( 'lins_scroll_arrow_margin_md' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_margin_sm !== get_option( 'lins_scroll_arrow_margin_sm' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_translate !== get_option( 'lins_scroll_arrow_translate' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_shadow_height !== get_option( 'lins_scroll_bg_height' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_shadow_height_lg !== get_option( 'lins_scroll_bg_height_lg' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_shadow_height_md !== get_option( 'lins_scroll_bg_height_md' ) )
-				$presetChangesEqual = false;
+				return false;
 
 			if ( $selected_preset[0]->arrow_shadow_height_sm !== get_option( 'lins_scroll_bg_height_sm' ) )
-				$presetChangesEqual = false;
+				return false;
 
-			if ( $selected_preset[0]->arrow_shadow_color !== ltrim( strtoupper( get_option( 'lins_scroll_bg_color' ) ), '#' ) )
-				$presetChangesEqual = false;
+			if ( strtoupper( $selected_preset[0]->arrow_shadow_color ) !== ltrim( strtoupper( get_option( 'lins_scroll_bg_color' ) ), '#' ) )
+				return false;
 
 			if ( $selected_preset[0]->arrow_shadow_opacity !== get_option( 'lins_scroll_bg_opacity' ) )
-				$presetChangesEqual = false;
-			return $presetChangesEqual;
+				return false;
+
+			return true;
 		}
 
 		if ( isset( $_GET['settings-updated'] ) && ! get_option( 'lins_scroll_lock_reload' ) ) {
@@ -248,7 +252,7 @@ class Lins_Scroll_To_Top {
 
 
 				} else {
-					//This setting is different from the default setting. Do you want to save this as a new preset? Modal: New name and save as preset. 
+					//This setting is different from the default setting. Do you want to save this as a new preset? Modal: New name and Save New Preset. 
 					function add_admin_submit_alert_def_js() {
 						if ( is_admin() && isset( $_GET['page'] ) && $_GET['page'] === 'lins-scroll-to-top-settings' ) {
 
@@ -373,9 +377,17 @@ class Lins_Scroll_To_Top {
 			$custom_css .= "@media only screen and (max-width: " . BP_MD . "px) { .scroll-arrow { right: {$margin_size_md}px; bottom:{$margin_size_md}px; } }";
 			$custom_css .= "@media only screen and (max-width: " . BP_SM . "px) { .scroll-arrow { right: {$margin_size_sm}px; bottom:{$margin_size_sm}px; } }";
 			$custom_css .= ".scroll-arrow svg { fill: {$arrow_fill}; }";
-
 			return $custom_css;
 		}
+
+		function arrow_settings_css() {
+			$custom_css = get_settings_css();
+			echo "<style>{$custom_css}</style>";
+		}
+
+		add_action( 'wp_head', 'arrow_settings_css' );
+		add_action( 'admin_head', 'arrow_settings_css' );
+
 		function sanitize_opacity_db( $input ) {
 			$input = floatval( $input );
 			if ( is_float( $input ) ) {
@@ -397,18 +409,40 @@ class Lins_Scroll_To_Top {
 			}
 			return false;
 		}
+
+		function get_preset_name() {
+			global $wpdb;
+			$preset         = $_POST['ajax_data'];
+			$table_name     = $wpdb->prefix . 'lins_scroll_arrow_presets';
+			$safe_sql       = $wpdb->prepare( "SELECT `preset_name`
+												FROM `$table_name`
+												WHERE `settings_active` = %d AND `uuid` = %s", array( true, $preset['uuid'] ) );
+			$loaded_presets = $wpdb->get_results( $safe_sql );
+			if ( $loaded_presets ) {
+				echo json_encode( $loaded_presets[0]->preset_name );
+			}
+			exit();
+		}
+
+		function get_loaded_uuid() {
+			echo json_encode( get_option( 'lins_scroll_loaded_preset', false ) );
+			exit();
+		}
+
 		function unlock_reload() {
 			update_option( 'lins_scroll_lock_reload', false );
+			exit();
 		}
 
 		function remove_loaded_preset() {
 			update_option( 'lins_scroll_loaded_preset', false );
+			exit();
 		}
 
 		function update_preset() {
-			global $wpdb;
 			$preset = $_POST['ajax_data'];
 			if ( $preset['uuid'] !== BLANK_UUID ) {
+				global $wpdb;
 				$table_name = $wpdb->prefix . 'lins_scroll_arrow_presets';
 
 				$errors = array();
@@ -564,8 +598,8 @@ class Lins_Scroll_To_Top {
 					//echo json_encode( 0 );
 					//die;
 				}
-				exit();
 			}
+			exit();
 		}
 
 		function reload_preset_select_remove() {
@@ -929,6 +963,9 @@ class Lins_Scroll_To_Top {
 
 		add_action( 'wp_enqueue_scripts', 'add_js' );
 
+		add_action( 'admin_enqueue_scripts', 'add_js' );
+
+
 		add_action( 'admin_enqueue_scripts', 'mw_enqueue_color_picker' );
 
 		function mw_enqueue_color_picker() {
@@ -1137,8 +1174,7 @@ class Lins_Scroll_To_Top {
 		register_setting( 'lins_scroll_to_top_plugin', 'lins_scroll_bg_opacity', array( 'sanitize_callback' => array( $this, 'sanitize_bg_opacity' ), 'default' => BG_OPACITY_DEF ) );
 
 		add_option( 'lins_scroll_loaded_preset', false );
-		add_option( 'lins_scroll_lock_reload' );
-
+		add_option( 'lins_scroll_lock_reload', false );
 	}
 
 	// Sanitzing
@@ -1699,14 +1735,17 @@ class Lins_Scroll_To_Top {
 			</div>
 
 			<div class="save-new-def js-hide-alert">
-				<div class="button button-primary" onclick="linsScrollTopShowModal()">Save As Preset</div>
+				<button class="button button-primary" onclick="linsScrollTopShowModal()">Save New Preset</button>
+				<button class="button button-secondary" onclick="linsScrollCloseSaveNewDef()">Cancel</button>
 			</div>
 
 			<div class="save-preset-changes js-hide-alert">
-				<div class="button button-primary update-save-preset-changes" onclick="linsScrollUpdatePreset()">Update Preset
-				</div>
-				<div class="button button-secondary" onclick="linsScrollTopShowModal()">Save As Preset</div>
-				<div class="button button-danger-outline" onclick="">Keep Unsaved Preset</div>
+				<button class="button button-primary update-save-preset-changes" onclick="linsScrollUpdatePreset()">Update
+					Preset
+				</button>
+				<button class="button button-secondary" onclick="linsScrollTopShowModal()">Save New Preset</button>
+				<button class="button button-danger-outline" onclick="linsScrollCloseSaveNewPreset()">Keep Unsaved
+					Preset</button>
 			</div>
 
 
@@ -1736,6 +1775,7 @@ class Lins_Scroll_To_Top {
 				<button class="button button-danger-outline remove-preset-btn" onclick="linsScrollRemoveAlert()">Remove
 					Preset</button>
 				<button class="button button-success load-preset-btn" onclick="linsScrollSaveChanges()">Save Changes</button>
+				<button class="button button-secondary" onclick="linsScrollTopShowModal()">Save New Preset</button>
 
 			</div>
 			<div class="current-preset">
@@ -1747,7 +1787,7 @@ class Lins_Scroll_To_Top {
 				do_settings_sections( 'lins-scroll-to-top-settings' );
 				submit_button();
 				?>
-				<div class="button button-primary" onclick="linsScrollTopShowModal()">Save As Preset</div>
+				<div class="button button-primary" onclick="linsScrollTopShowModal()">Save New Preset</div>
 
 			</form>
 
