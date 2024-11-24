@@ -261,6 +261,14 @@ function linsScrollUpdatePreset() {
                 linsScrollReloadRemoveSelect();
                 linsScrollReloadLoadedPreset();
                 linsScrollLoadPresetAjax(currUuid);
+                jQuery.ajax({
+                    type: 'post',
+                    url: `${window.location.origin}/wp-admin/admin-ajax.php`,
+                    dataType: 'json',
+                    data: {
+                        action: 'unlock_reload'
+                    }
+                });
             }
         }
     });
@@ -336,7 +344,7 @@ function linsScrollEditPreset() {
                                 `<div class="notice notice-success settings-success lins-scroll-arrow-alert">
                                     <p>
                                         <strong>
-                                            Preset name is updated successfully! 
+                                            Preset name was updated successfully! 
                                         </strong>
                                     </p>
                                 </div>`;
